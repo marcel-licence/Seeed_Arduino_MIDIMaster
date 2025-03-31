@@ -10,10 +10,21 @@
  *
  * @param memory The amount of memory to allocate for the driver.
  *               Defaults to 512 if not specified.
+ * @param serial SAM2695 and ESP32 serial with MIDI
+ * @param baud   MIDI serial baud
+ * @param RX     MIDI serial RX
+ * @param TX     MIDI serial TX
  */
-SAM2695_Driver::SAM2695_Driver(int memory)
+SAM2695_Driver::SAM2695_Driver(int memory, HardwareSerial* serial, int baud, uint8_t RX, uint8_t TX)
 {
+  _serial = serial;
+  _serial->begin(baud, SERIAL_8N1, RX, TX);
   _init(memory);
+}
+
+void SAM2695_Driver::sendCMD(byte* buf, int size)
+{
+  _serial->write(buf, size);
 }
 
 /**
@@ -282,10 +293,10 @@ void SAM2695_Driver::setMidiHandler2(MIDIcallBack2 cb)
  *
  * @return byte
  */
-byte SAM2695_Driver::getPosition()
-{
-  return _quantizedPosition();
-}
+// byte SAM2695_Driver::getPosition()
+// {
+//   return _quantizedPosition();
+// }
 
 /**
  * A common init method for the constructors to

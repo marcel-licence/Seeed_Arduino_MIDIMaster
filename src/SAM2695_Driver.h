@@ -15,7 +15,8 @@
 class SAM2695_Driver
 {
 public:
-  SAM2695_Driver(int memory = DEFAULT_MEMORY);
+  SAM2695_Driver(int memory = DEFAULT_MEMORY, HardwareSerial* serial = &Serial2,int baud = 31250,uint8_t RX = 42, uint8_t TX = 43);
+  void sendCMD(byte* buf, int size);
   void  begin(int bpms = DEFAULT_BPM, int steps = DEFAULT_STEPS);
   void  run();
   void  setBpm(int tempo);
@@ -24,7 +25,7 @@ public:
   void  setMidiHandler(MIDIcallback cb);
   void  setStepHandler(StepCallback cb);
   void  setNote(byte channel, byte pitch, byte velocity, byte step = -1);
-  byte  getPosition();
+  // byte  getPosition();
   StepNote* getStepNote();
 
   //todo add test
@@ -60,6 +61,8 @@ private:
   unsigned long     _shuffle;
   unsigned long     _nextBeat;
   unsigned long     _nextClock;
+public:
+  HardwareSerial*   _serial;
 };
 
 #endif
