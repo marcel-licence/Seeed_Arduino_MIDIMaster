@@ -5,7 +5,7 @@
 
 /*------------------------------------------- Defines begin -------------------------------------------*/
 #define MIDI_SERIAL_BAUD_RATE 31250
-#define USB_SERIAL_BAUD_RATE 115200
+#define USB_SERIAL_BAUD_RATE 9600
 #define MIDI_COMMAND_ON 0x90
 #define MIDI_COMMAND_OFF 0x80
 #define DEFAULT_BPM 120
@@ -15,8 +15,13 @@
 #define MAX_TEMPO 240
 #define MAX_STEPS 256
 #define BASIC_TIME_MS 60000
+#define MIDI_CMD_CONTROL_CHANGE 0xB0
+#define MIDI_CMD_PROGRAM_CHANGE 0xC0
+#define VELOCITY_MIN 0
+#define VELOCITY_MAX 127
+#define VELOCITY_STEP 10
 
-/* define channel */
+/* define channel begin */
 #define CHANNEL_0 0
 #define CHANNEL_1 1
 #define CHANNEL_2 2
@@ -294,7 +299,6 @@
 #define BANK1_Helicopter 126
 #define BANK1_BowedGlass 127
 #define BANK1_IceRain 128
-
 /* Drum effects (channel 10) */
 /*------------------------------------------- Defines end -------------------------------------------*/
 
