@@ -11,6 +11,8 @@
 #include "StateMachine.h"
 #include "SAM2695Synth.h"
 
+#define MaxTimeLimit 2000 //录制最大间隔，设置为2s
+
 extern SAM2695Synth synth;
 
 bool entryFlag = true;
@@ -20,11 +22,16 @@ bool channel_3_on_off_flag = false;
 bool channel_4_on_off_flag = false;
 bool drum_on_off_flag = false;
 
+unsigned long btnPressStartTime  = 0;
+uint8_t buttonPressCount = 0;
+bool isRecording = false;
+
+
 //mode 1
-class ButtonState1 :public State{
+class State1 :public State{
 public:
 	enum {ID = 1};
-    ButtonState1(){ }
+    State1(){ }
 
     virtual void onEnter()
     {
@@ -105,7 +112,7 @@ public:
 };
 
 //mode 2
-class ButtonState2 :public State{
+class State2 :public State{
 public:
 	enum {ID = 2};
     virtual void onEnter()
@@ -144,6 +151,33 @@ public:
 	        };
 			case EventType::BtnDPressed:{
 					Serial.println("Mode 2 Button D  Pressed");
+					//first press
+					if(!isRecording)
+					{
+						btnPressStartTime = millis();		//record the start time
+						buttonPressCount = 1;            
+						isRecording = true;
+					}
+					else
+					{
+						if (millis() - btnPressStartTime <= MaxTimeLimit)
+						{
+							buttonPressCount++;
+						}
+						else
+						{
+							isRecording = false;
+							buttonPressCount = 0;
+						}
+					}
+					if (buttonPressCount == 4) {
+						//calculate the bpm
+						int bpm = 60000 / (millis() - btnPressStartTime);
+						synth.setBpm(bpm);
+						Serial.println("BPM: " + String(bpm));
+						isRecording = false;
+						btnPressStartTime = 0;
+					}
 					return true;
 	        };
 			case EventType::BtnALongPressed:{
@@ -188,7 +222,7 @@ public:
 };
 
 //mode 3
-class ButtonState3 :public State{
+class State3 :public State{
 public:
 	enum {ID = 3};
 	virtual void onEnter()
@@ -269,6 +303,7 @@ public:
 	virtual int getID() const {return ID;}
 	virtual const char* getName() const {return "ButtonStateThree";};
 };
+
 
 
 //error mode

@@ -33,14 +33,14 @@ void setup() {
     //get state manager
     StateManager* manager = StateManager::getInstance();
     //regist button state
-    manager->registerState(new ButtonState1());
-    manager->registerState(new ButtonState2());
-    manager->registerState(new ButtonState3());
+    manager->registerState(new State1());
+    manager->registerState(new State2());
+    manager->registerState(new State3());
     //regist error state
     ErrorState* errorState = new ErrorState();
     manager->registerState(errorState);
     //init state machine
-    if(!(stateMachine.init(manager->getState(ButtonState1::ID), errorState)))
+    if(!(stateMachine.init(manager->getState(State1::ID), errorState)))
     {
         StateManager::releaseInstance();
         return ;
@@ -193,15 +193,15 @@ void multiTrackPlay()
 void ledShowByState()
 {
     modeID = stateMachine.getCurrentState()->getID();
-    if(modeID == ButtonState1::ID)
+    if(modeID == State1::ID)
     {
         ledTime = STATE_1_LED_TIME;
     }
-    else if(modeID == ButtonState2::ID)
+    else if(modeID == State2::ID)
     {
         ledTime = STATE_2_LED_TIME;
     }
-    else if(modeID == ButtonState3::ID)
+    else if(modeID == State3::ID)
     {
         ledTime = STATE_3_LED_TIME;
     }
