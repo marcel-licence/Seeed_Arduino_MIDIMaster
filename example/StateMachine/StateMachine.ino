@@ -4,19 +4,29 @@
 #include "SAM2695Synth.h"
 #include "State.hpp"
 
+#define STATE_1_LED_TIME 800
+#define STATE_2_LED_TIME 400
+#define STATE_3_LED_TIME 200
+
 SAM2695Synth synth = SAM2695Synth::getInstance();
 EmmaButton button;
 StateMachine stateMachine;
 
 bool isPressed = false;
-unsigned long previousMillis = 0; // Record the time of the last sent MIDI signal.
-int noteType = QUATER_NOTE;    // Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
-uint8_t drupCount = 0;          //Count the beats and play different notes
+unsigned long previousMillis = 0;   // Record the time of the last sent MIDI signal.
+int noteType = QUATER_NOTE;         // Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
+uint8_t drupCount = 0;              // Count the beats and play different notes
 uint8_t voice = 50;
+uint8_t  modeID = 0;                // current mode id
+int ledTime = 0;                    // LED Interval time
+unsigned long previousMillis2 = 0;  // Record the time of the last LED change
+
 
 void setup() {
     //init serial
     Serial.begin(115200);
+    //init led
+    pinMode(LED_BUILTIN, OUTPUT);
     delay(3000);
     //init synth
     synth.begin();
@@ -47,6 +57,7 @@ void loop()
         delete event;
     }
     multiTrackPlay();
+    ledShowByState();
 }
 
 Event* getNextEvent()
@@ -179,4 +190,25 @@ void multiTrackPlay()
     }
 }
 
-
+void ledShowByState()
+{
+    modeID = stateMachine.getCurrentState()->getID();
+    if(modeID == ButtonState1::ID)
+    {
+        ledTime = STATE_1_LED_TIME;
+    }
+    else if(modeID == ButtonState2::ID)
+    {
+        ledTime = STATE_2_LED_TIME;
+    }
+    else if(modeID == ButtonState3::ID)
+    {
+        ledTime = STATE_3_LED_TIME;
+    }
+    unsigned long currentMillis = millis();
+    if(currentMillis - previousMillis2 >= ledTime)
+    {
+        previousMillis2 = millis();
+        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    }
+}
