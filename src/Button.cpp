@@ -7,6 +7,8 @@
 #include "Button.h"
 #include <Arduino.h>
 
+
+
 __Button::__Button(uint8_t pin, uint16_t debounce_ms)
 :  pin_(pin)
 ,  delay_(debounce_ms)
@@ -17,6 +19,7 @@ __Button::__Button(uint8_t pin, uint16_t debounce_ms)
 ,  longPressThreshold_(700)
 ,  longPressFlag_(false)
 {
+	pin_ = pin;
     pinMode(pin, INPUT_PULLUP);
 }
 
@@ -26,7 +29,15 @@ void __Button::begin(){
 
 // 
 // public methods
-// 
+//
+
+// has the button been toggled from on -> off, or vice versa
+BtnAct __Button::toggled(){
+	if (has_changed()) {
+		return BtnAct::Toggled;
+	}
+	return BtnAct::None;
+}
 
 bool __Button::read(){
 	// ignore pin changes until after this delay time
@@ -44,14 +55,6 @@ bool __Button::read(){
 	return state_;
 }
 
-// has the button been toggled from on -> off, or vice versa
-BtnAct __Button::toggled(){
-	if (has_changed()) {
-		return BtnAct::toggled;
-	}
-	return BtnAct::none;
-}
-
 // mostly internal, tells you if a button has changed after calling the read() function
 bool __Button::has_changed(){
 	if (hasChanged_){
@@ -64,17 +67,17 @@ bool __Button::has_changed(){
 // has the button gone from off -> on
 BtnAct __Button::pressed(){
 	if (read() == LOW && has_changed()) {
-		return BtnAct::pressed;
+		return BtnAct::Pressed;
 	}
-	return BtnAct::none;
+	return BtnAct::None;
 }
 
 // has the button gone from on -> off
 BtnAct __Button::released(){
 	if (read() == HIGH && has_changed()) {
-		return BtnAct::released;
+		return BtnAct::Released;
 	}
-	return BtnAct::none;
+	return BtnAct::None;
 }
 
 // has the button detect long press
@@ -89,9 +92,9 @@ BtnAct __Button::longPressed(){
 		if (millis() - pressedTime_ >= longPressThreshold_ ) {
 			if(longPressFlag_ == false){
 				longPressFlag_ = true;
-				return BtnAct::longPressed;  // Long press detected
+				return BtnAct::LongPressed;  // Long press detected
 			}
-			return BtnAct::none;  // Long press detected, but already reported
+			return BtnAct::None;  // Long press detected, but already reported
 		}
 	} else {
 		// Reset the pressed_time when the button is released
@@ -100,6 +103,11 @@ BtnAct __Button::longPressed(){
 		}
 		pressedTime_ = 0;
 	}
-	return BtnAct::none;   // No long press
+	return BtnAct::None;   // No long press
+}
+
+uint8_t __Button::getPin() const
+{
+    return pin_;
 }
 

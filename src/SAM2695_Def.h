@@ -4,40 +4,46 @@
 #define _SAM2695_DEF_H
 
 /*------------------------------------------- Defines begin -------------------------------------------*/
-#define MIDI_SERIAL_BAUD_RATE 31250
-#define USB_SERIAL_BAUD_RATE 9600
-#define MIDI_COMMAND_ON 0x90
-#define MIDI_COMMAND_OFF 0x80
-#define DEFAULT_BPM 120
-#define DEFAULT_STEPS 16
-#define DEFAULT_MEMORY 512
-#define MIN_TEMPO 40
-#define MAX_TEMPO 240
-#define MAX_STEPS 256
-#define BASIC_TIME_MS 60000
-#define MIDI_CMD_CONTROL_CHANGE 0xB0
-#define MIDI_CMD_PROGRAM_CHANGE 0xC0
-#define VELOCITY_MIN 0
-#define VELOCITY_MAX 127
-#define VELOCITY_STEP 10
+#define MIDI_SERIAL_BAUD_RATE           31250   //MIDI串口波特率
+#define USB_SERIAL_BAUD_RATE            9600    //USB串口波特率
+#define MIDI_COMMAND_ON                 0x90    //MIDI控制开关-开
+#define MIDI_COMMAND_OFF                0x80    //MIDI控制开关-关
+#define BPM_DEFAULT                     120     //默认BPM
+#define BPM_MIN                         40      //最小BPM
+#define BPM_MAX                         240     //最大BPM
+#define BPM_STEP                        10      //BPM步进
+#define MIDI_CMD_CONTROL_CHANGE         0xB0    //control change
+#define MIDI_CMD_PROGRAM_CHANGE         0xC0    //program change
+#define VELOCITY_MIN                    0       //声音 0~127 0
+#define VELOCITY_MAX                    127     //声音 0~127 127
+#define VELOCITY_STEP                   10      //声音 0~127 步进为10
+#define BASIC_TIME                      60000   //1分钟的毫秒数
+#define QUATER_NOTE                     0       //4分音符
+#define EIGHTH_NOTE                     1       //8分音符
+#define SIXTEENTH_NOTE                  2       //16分音符
+#define BEATS_BAR_DEFAULT               4       //默认每小节拍数 - 4/4拍
+#define BEATES_BAR_2                    2       //每小节拍数 - 2/4拍
+#define BEATS_BAR_3                     3       //每小节拍数 - 3/4拍
+#define BEATS_BAR_4                     4       //每小节拍数 - 4/4拍
+
 
 /* define channel begin */
-#define CHANNEL_0 0
-#define CHANNEL_1 1
-#define CHANNEL_2 2
-#define CHANNEL_3 3
-#define CHANNEL_4 4
-#define CHANNEL_5 5
-#define CHANNEL_6 6
-#define CHANNEL_7 7
-#define CHANNEL_8 8
-#define CHANNEL_9 9
-#define CHANNEL_10 10
-#define CHANNEL_11 11
-#define CHANNEL_12 12
-#define CHANNEL_13 13
-#define CHANNEL_14 14
-#define CHANNEL_15 15
+#define CHANNEL_0                       0
+#define CHANNEL_1                       1
+#define CHANNEL_2                       2
+#define CHANNEL_3                       3
+#define CHANNEL_4                       4
+#define CHANNEL_5                       5
+#define CHANNEL_6                       6
+#define CHANNEL_7                       7
+#define CHANNEL_8                       8
+#define CHANNEL_9                       9
+#define CHANNEL_10                      10
+#define CHANNEL_11                      11
+#define CHANNEL_12                      12
+#define CHANNEL_13                      13
+#define CHANNEL_14                      14
+#define CHANNEL_15                      15
 
 /* define note*/
 #define BANK0_Grand_Piano1 1

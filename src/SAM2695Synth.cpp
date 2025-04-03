@@ -4,10 +4,12 @@
 
 #include "SAM2695Synth.h"
 
+
 SAM2695Synth::SAM2695Synth()
-    :_serial(nullptr)
-    ,_pitch(60)
-   ,_velocity(60)
+:_serial(nullptr)
+,_pitch(60)
+,_velocity(90)
+,_bpm(BPM_DEFAULT)
 {
 
 }
@@ -57,10 +59,9 @@ void SAM2695Synth::setAllNotesOff(uint8_t channel)
     sendCMD(CMD_CONTROL_CHANGE, sizeof(CMD_CONTROL_CHANGE));
 }
 
-void SAM2695Synth::playOnChannel(uint8_t channel)
+void SAM2695Synth::play(uint8_t channel,uint8_t pitch)
 {
     uint8_t velocity = _velocity;
-    uint8_t pitch = _pitch;
     uint8_t CMD_NOTE_ON[] = {(uint8_t)(MIDI_COMMAND_ON | (channel & 0x0f)),
                               pitch, velocity};
     sendCMD(CMD_NOTE_ON, sizeof(CMD_NOTE_ON));
@@ -101,10 +102,37 @@ void SAM2695Synth::decreaseVelocity()
     if(_velocity < VELOCITY_MIN) _velocity = VELOCITY_MIN;
 }
 
-void SAM2695Synth::drumPlay()
+void SAM2695Synth::increaseBpm()
 {
-
+    setBpm(_bpm + BPM_STEP);
 }
+
+void SAM2695Synth::decreaseBpm()
+{
+    setBpm(_bpm - BPM_STEP);
+}
+
+void SAM2695Synth::drumPlay(uint8_t channel)
+{
+    uint8_t velocity = _velocity;
+    uint8_t pitch = _pitch;
+}
+
+
+void SAM2695Synth::setBpm(uint8_t bpm)
+{
+    if(bpm < BPM_MIN)
+        bpm = BPM_MIN;
+    else if(bpm > BPM_MAX)
+        bpm = BPM_MAX;
+    _bpm = bpm;
+}
+
+uint8_t SAM2695Synth::getBpm() const
+{
+    return _bpm;
+}
+
 
 void SAM2695Synth::sendCMD(byte* cmd, int len)
 {
