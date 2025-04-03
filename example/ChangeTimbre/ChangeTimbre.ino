@@ -27,10 +27,10 @@ void setup()
     Serial.println("SAM2695 Synth");
     delay(1000);
     //Set up the notes and sounds you want to play.
-    synth.setPitch(40);
-    synth.setVelocity(40);
+    synth.setPitch(42);
+    synth.setVelocity(80);
     //you can set synth bpm (40 ~ 240)
-    synth.setBpm(80)
+    synth.setBpm(80);
 }
 
 void loop()
@@ -44,7 +44,10 @@ void loop()
     if (currentMillis - previousMillis >= interval)
     {
         previousMillis = currentMillis;
-        synth.play(CHANNEL_0);
+        srand(static_cast<unsigned int>(time(0)));
+        int randomNumber = rand() % 128;
+        synth.play(CHANNEL_0,randomNumber);
+        
     }
     //change timbre
     if(button.A.pressed() == BtnAct::Pressed)

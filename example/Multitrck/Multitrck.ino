@@ -29,7 +29,7 @@ void setup()
     delay(1000);
     //Set up the notes and sounds you want to play.
     synth.setPitch(42);
-    synth.setVelocity(40);
+    synth.setVelocity(100);
     //you can set synth bpm (40 ~ 240)
     synth.setBpm(120);
 }

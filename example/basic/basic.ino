@@ -17,8 +17,8 @@ void setup()
 
 void loop()
 {
-  synth.setNoteOn(9, 38, 127);
+  synth.setNoteOn(9, 38, 50);
   delay(1000);
-  synth.setNoteOn(9, 36, 127);
+  synth.setNoteOn(9, 36, 50);
   delay(1000);
 }

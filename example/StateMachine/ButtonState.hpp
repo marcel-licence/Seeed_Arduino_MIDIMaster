@@ -62,6 +62,7 @@ public:
             };
             case EventType::BtnDPressed:{
             		Serial.println("Mode 1 Button D Pressed");
+					drum_on_off_flag = !drum_on_off_flag;
             		return true;
             };
             case EventType::BtnALongPressed:{
@@ -143,7 +144,6 @@ public:
 	        };
 			case EventType::BtnDPressed:{
 					Serial.println("Mode 2 Button D  Pressed");
-					drum_on_off_flag = !drum_on_off_flag;
 					return true;
 	        };
 			case EventType::BtnALongPressed:{

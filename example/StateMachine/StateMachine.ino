@@ -10,9 +10,9 @@ StateMachine stateMachine;
 
 bool isPressed = false;
 unsigned long previousMillis = 0; // Record the time of the last sent MIDI signal.
-int noteType = QUATER_NOTE;    //// Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
-
-
+int noteType = QUATER_NOTE;    // Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
+uint8_t drupCount = 0;          //Count the beats and play different notes
+uint8_t voice = 50;
 
 void setup() {
     //init serial
@@ -139,19 +139,42 @@ void multiTrackPlay()
         previousMillis = currentMillis;
         if(channel_1_on_off_flag)
         {
-            synth.play(CHANNEL_0);
+            uint8_t pitch = synth.getPitch();
+            synth.setNoteOn(CHANNEL_0,synth.getPitch(),voice);
         }
         if(channel_2_on_off_flag)
         {
-            synth.play(CHANNEL_1);
+            synth.setNoteOn(CHANNEL_1,synth.getPitch(),voice);
         }
         if(channel_3_on_off_flag)
         {
-            synth.play(CHANNEL_2);
+            synth.setNoteOn(CHANNEL_2,synth.getPitch(),voice);
         }
         if(channel_4_on_off_flag)
         {
-            synth.play(CHANNEL_3);
+            synth.setNoteOn(CHANNEL_3,synth.getPitch(),voice);
+        }
+        if(drum_on_off_flag)
+        {
+            if(drupCount % 4 == 0)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_C2,voice);
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
+            }
+            else if(drupCount % 4 == 1)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
+            }
+            else if(drupCount % 4 == 2)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_D2,voice);
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
+            }
+            else if(drupCount % 4 == 3)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
+            }
+            drupCount++;
         }
     }
 }
