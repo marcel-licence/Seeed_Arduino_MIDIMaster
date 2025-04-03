@@ -9,6 +9,10 @@ EmmaButton button;
 StateMachine stateMachine;
 
 bool isPressed = false;
+unsigned long previousMillis = 0; // Record the time of the last sent MIDI signal.
+int noteType = QUATER_NOTE;    //// Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
+
+
 
 void setup() {
     //init serial
@@ -42,6 +46,7 @@ void loop()
         stateMachine.handleEvent(event);
         delete event;
     }
+    multiTrackPlay();
 }
 
 Event* getNextEvent()
@@ -123,6 +128,32 @@ Event* getNextEvent()
     }
 
     return nullptr;
+}
+
+void multiTrackPlay()
+{
+    unsigned long interval = (BASIC_TIME / synth.getBpm()) / (noteType + 1);
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= interval)
+    {
+        previousMillis = currentMillis;
+        if(channel_1_on_off_flag)
+        {
+            synth.play(CHANNEL_0);
+        }
+        if(channel_2_on_off_flag)
+        {
+            synth.play(CHANNEL_1);
+        }
+        if(channel_3_on_off_flag)
+        {
+            synth.play(CHANNEL_2);
+        }
+        if(channel_4_on_off_flag)
+        {
+            synth.play(CHANNEL_3);
+        }
+    }
 }
 
 

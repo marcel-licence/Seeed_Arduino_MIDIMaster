@@ -8,19 +8,19 @@ StateManager* StateManager::_instance = nullptr;
 
 StateManager::StateManager()
 {
-    // 初始化状态数组
+    // init state array
     for (int i = 0; i < MAX_STATES; ++i)
     {
-        _states[i] = 0;
+        _states[i] = nullptr;
     }
 }
 
 StateManager::~StateManager()
 {
-    // 清理状态（如果它们是动态分配的）
+    // reset state array
     for (int i = 0; i < MAX_STATES; ++i) {
         delete _states[i];
-        _states[i] = 0;
+        _states[i] = nullptr;
     }
 }
 
@@ -52,14 +52,13 @@ bool StateManager::registerState(State* state)
         return false;
     }
 
-    // 如果状态已经存在，则先删除它
+    // if existed! delete it!
     if(_states[id-1])
     {
         delete _states[id-1];
     }
-    //替换
     _states[id-1] = state;
-    char name[100];  // 用一个足够大的字符数组来存储结果
+    char name[100];  // LOG
     sprintf(name, "add state : %s,%d", state->getName(), id);
     Serial.println(name);
     return true;

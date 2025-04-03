@@ -47,7 +47,8 @@ bool StateMachine::handleEvent(const Event* event)
         return false;
     }
 
-    // 防止在事件处理中触发状态转换时再次处理事件
+    // Prevent processing the event again 
+    //when the state transition is triggered during event handling.
     if(_transitioningInProgress)
     {
         return false;
@@ -75,16 +76,16 @@ bool StateMachine::changeState(State* newState)
     }
 
     try {
-        // 退出当前状态
+        // exit current state
         if (_currentState) {
             _currentState->onExit();
         }
 
-        // 保存前一个状态用于返回
+        //Save the previous state for return
         _previousState = _currentState;
         _currentState = newState;
 
-        // 进入新状态
+        // Enter the new state
         _currentState->onEnter();
         return true;
     } catch (...) {
@@ -109,12 +110,12 @@ void StateMachine::setErrorHandler(ErrorHandler errorHandler)
 
 void StateMachine::handleError(int errorCode, const char* errorMsg)
 {
-    // 调用错误处理器
+    // Call the error handler
     if (_errorHandler) {
         _errorHandler(errorCode, errorMsg);
     }
 
-    // 如果有错误状态，切换到错误状态
+    // Switch to the error state if there is an error state
     if (_errorState && _currentState != _errorState) {
         changeState(_errorState);
     }

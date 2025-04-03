@@ -24,7 +24,7 @@ public:
     void setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity);
     void setNoteOff(uint8_t channel, uint8_t pitch, uint8_t velocity);
     void setAllNotesOff(uint8_t channel);
-    void play(uint8_t channel,uint8_t picth = BANK0_Viola);
+    void play(uint8_t channel,uint8_t picth = -1);
     void setPitch(uint8_t pitch);
     void setVelocity(uint8_t velocity);
     void increasePitch();

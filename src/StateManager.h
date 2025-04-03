@@ -14,19 +14,19 @@
 class StateManager {
 public:
     ~StateManager();
-    //获取单例
+    //get instance
     static StateManager* getInstance();
-    //释放单例
+    //release instance
     static void releaseInstance();
-    //注册状态
+    //regist state
     bool registerState(State* state);
-    //获取状态
+    //get state by stateID
     State* getState(int index) const;
-    //状态数量
+    //get state count
     int getStateCount() const;
 
 private:
-    //构造私有化
+    //constructor private
     StateManager();
 
 private:

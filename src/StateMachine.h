@@ -9,25 +9,24 @@
 
 using ErrorHandler = void (*)(int errorCode,const char* errorMsg);
 
-//状态机
 class StateMachine {
 public:
     StateMachine();
     ~StateMachine();
 
-    //初始化状态机
+    //init state mechine
     bool init(State* initialState, State* errorState);
-    //事件处理
+    //handle event 
     bool handleEvent(const Event* event);
-    //状态转化
+    //toggle to next state
     bool changeState(State* newState);
-    //返回前一个状态
+    //toggle to previous state
     bool goToPreviousState();
-    //设置错误处理器
+    //set error event handle
     void setErrorHandler(ErrorHandler errorHandler);
-    //触发错误处理
+    //handle error
     void handleError(int errorCode,const char* errorMsg);
-    //获取当前状态
+    //get current state
     State* getCurrentState();
 
 private:
