@@ -21,7 +21,7 @@ public:
     void playChord(const musicData& chord);
     void setPitch(uint8_t pitch);
     uint8_t getPitch() const;
-    void setVelocity(uint8_t velocity);
+    void setVolume(uint8_t channel, uint8_t level);
     void increasePitch();
     void decreasePitch();
     void increaseVelocity();

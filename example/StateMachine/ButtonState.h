@@ -42,6 +42,7 @@ public:
     virtual void onExit()
     {
 	    Serial.println("exit Mode 1");
+		drum_on_off_flag = false;
     }
     //handle event
     virtual bool handleEvent(StateMachine* machine,Event* event)
@@ -128,6 +129,7 @@ public:
     virtual void onExit()
     {
     	Serial.println("exit Mode 2");
+		drum_on_off_flag = false;
     }
 
     //handle event

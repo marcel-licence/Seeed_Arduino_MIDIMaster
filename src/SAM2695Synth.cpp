@@ -125,18 +125,26 @@ void SAM2695Synth::setPitch(uint8_t pitch)
     _pitch = pitch;
 }
 
+// Retrieves the current pitch value of the synthesizer.
+// This value is the default pitch that is used when the pitch is not explicitly provided during note playback.
+// Returns:
+//   The current MIDI pitch value (0-127) that is set for the synthesizer.
 uint8_t SAM2695Synth::getPitch() const
 {
     return _pitch;
 }
 
-// Sets the velocity value for the synthesizer.
-// This value will be used as the default velocity when playing notes.
+// Sets the volume level for a specific MIDI channel.
+// This function sends a "Control Change" message to set the volume (controller number 7) 
+// for the specified channel to the provided level.
 // Parameters:
-//   velocity - The MIDI velocity value (0-127) to be set as the default velocity for the synthesizer.
-void SAM2695Synth::setVelocity(uint8_t velocity)
+//   channel - The MIDI channel (0-15) on which to set the volume.
+//   level   - The volume level to be set (0-127), where 0 is the lowest volume and 127 is the highest.
+void SAM2695Synth::setVolume(uint8_t channel, uint8_t level)
 {
-    _velocity = velocity;
+    uint8_t CMD_CONTROL_CHANGE[] = {
+        (uint8_t)(MIDI_CMD_CONTROL_CHANGE | (channel & 0x0f)), 0x07, level};
+    sendCMD(CMD_CONTROL_CHANGE, sizeof(CMD_CONTROL_CHANGE));
 }
 
 // Increases the pitch value by 1, ensuring it does not exceed the maximum allowed pitch.
@@ -151,6 +159,11 @@ void SAM2695Synth::increasePitch()
     setNoteOn(CHANNEL_10, _pitch, _velocity);
 }
 
+// Decreases the pitch value by 1, ensuring it does not go below the minimum allowed pitch.
+// If the pitch goes below the predefined minimum value (BANK1_Clav), 
+// it is set to that minimum value.
+// This function ensures the pitch stays within the valid range.
+// No parameters are needed.
 void SAM2695Synth::decreasePitch()
 {
     _pitch--;
@@ -158,27 +171,40 @@ void SAM2695Synth::decreasePitch()
     setNoteOn(CHANNEL_10, _pitch, _velocity);
 }
 
-// Decreases the pitch value by 1, ensuring it does not go below the minimum allowed pitch.
-// If the pitch goes below the predefined minimum value (BANK1_Clav), 
-// it is set to that minimum value.
-// This function ensures the pitch stays within the valid range.
-// No parameters are needed.
+// Increases the velocity of the synthesizer and adjusts the volume for all MIDI channels.
+// This function increases the current velocity by a predefined step value, ensuring the velocity does not exceed the maximum allowed value.
+// Then, it updates the volume for all MIDI channels (0 to 15) based on the new velocity value.
+// The velocity is used to control the volume, where higher velocity corresponds to a higher volume level.
+// The velocity value is capped at a maximum defined by VELOCITY_MAX.
+// No parameters are required for this function.
 void SAM2695Synth::increaseVelocity()
 {
     _velocity += VELOCITY_STEP;
     if(_velocity > VELOCITY_MAX) _velocity = VELOCITY_MAX;
+    for(int i = CHANNEL_0;i<=CHANNEL_15;i++){
+        setVolume(i,_velocity);
+    }
 }
 
+// Decreases the velocity of the synthesizer and adjusts the volume for all MIDI channels.
+// This function decreases the current velocity by a predefined step value, ensuring the velocity does not fall below the minimum allowed value.
+// Then, it updates the volume for all MIDI channels (0 to 15) based on the new velocity value.
+// The velocity value is capped at a minimum defined by VELOCITY_MIN.
+// No parameters are required for this function.
 void SAM2695Synth::decreaseVelocity()
 {
     _velocity -= VELOCITY_STEP;
     if(_velocity < VELOCITY_MIN) _velocity = VELOCITY_MIN;
+    for(int i = CHANNEL_0;i<=CHANNEL_15;i++){
+        setVolume(i,_velocity);
+    }
 }
 
-// Decreases the velocity value by a defined step (VELOCITY_STEP), ensuring it does not go below the minimum allowed velocity.
-// If the velocity goes below the predefined minimum value (VELOCITY_MIN), 
-// it is set to that minimum value.
-// No parameters are needed.
+// Increases the beats per minute (BPM) for the synthesizer.
+// This function increments the current BPM by a predefined step value (BPM_STEP),
+// and then updates the BPM setting for the synthesizer accordingly.
+// The new BPM value is calculated by adding the BPM_STEP to the current BPM value.
+// No parameters are required for this function.
 void SAM2695Synth::increaseBpm()
 {
     setBpm(_bpm + BPM_STEP);
