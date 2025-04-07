@@ -1,113 +1,75 @@
-/*
-	Button - a small library for Arduino to handle button debouncing
-	
-	MIT licensed.
-*/
-
-#include "Button.h"
-#include <Arduino.h>
-
-
-
-__Button::__Button(uint8_t pin, uint16_t debounce_ms)
-:  pin_(pin)
-,  delay_(debounce_ms)
-,  state_(HIGH)
-,  ignoreUntil_(0)
-,  hasChanged_(false)
-,  pressedTime_(0)
-,  longPressThreshold_(700)
-,  longPressFlag_(false)
-{
-	pin_ = pin;
-    pinMode(pin, INPUT_PULLUP);
-}
-
-void __Button::begin(){
-	pinMode(pin_, INPUT_PULLUP);
-}
-
-// 
-// public methods
+//
+// Created by Administrator on 25-4-7.
 //
 
-// has the button been toggled from on -> off, or vice versa
-BtnAct __Button::toggled(){
-	if (has_changed()) {
-		return BtnAct::Toggled;
-	}
-	return BtnAct::None;
-}
+#include "Button.h"
 
-bool __Button::read(){
-	// ignore pin changes until after this delay time
-	if (ignoreUntil_ > millis()){
-		// ignore any changes during this period
-	}
-	
-	// pin has changed 
-	else if (digitalRead(pin_) != state_){
-		ignoreUntil_ = millis() + delay_;
-		state_ = !state_;
-		hasChanged_ = true;
-	}
-	
-	return state_;
-}
+// 消抖时间（毫秒）
+const unsigned long debounceDelay = 50;
+// 长按时间（毫秒）
+const unsigned long longPressTime = 1000;
 
-// mostly internal, tells you if a button has changed after calling the read() function
-bool __Button::has_changed(){
-	if (hasChanged_){
-		hasChanged_ = false;
-		return true;
-	}
-	return false;
-}
+// 事件标志位
+bool shortPressFlag_A = false;
+bool longPressFlag_A = false;
+bool releaseFlag_A = false;
+bool shortPressFlag_B = false;
+bool longPressFlag_B = false;
+bool releaseFlag_B = false;
+bool shortPressFlag_C = false;
+bool longPressFlag_C = false;
+bool releaseFlag_C = false;
+bool shortPressFlag_D = false;
+bool longPressFlag_D = false;
+bool releaseFlag_D = false;
 
-// has the button gone from off -> on
-BtnAct __Button::pressed(){
-	if (read() == LOW && has_changed()) {
-		return BtnAct::Pressed;
-	}
-	return BtnAct::None;
-}
-
-// has the button gone from on -> off
-BtnAct __Button::released(){
-	if (read() == HIGH && has_changed()) {
-		return BtnAct::Released;
-	}
-	return BtnAct::None;
-}
-
-// has the button detect long press
-BtnAct __Button::longPressed(){
-	// If the button is pressed, check if it has been pressed for longer than the threshold
-	if (read() == PRESSED) {
-		if (pressedTime_ == 0) {
-			// Record the time when the button is first pressed
-			pressedTime_ = millis();
-		}
-		// Check if the button has been pressed long enough
-		if (millis() - pressedTime_ >= longPressThreshold_ ) {
-			if(longPressFlag_ == false){
-				longPressFlag_ = true;
-				return BtnAct::LongPressed;  // Long press detected
-			}
-			return BtnAct::None;  // Long press detected, but already reported
-		}
-	} else {
-		// Reset the pressed_time when the button is released
-		if(longPressFlag_ ){
-			longPressFlag_ = false;
-		}
-		pressedTime_ = 0;
-	}
-	return BtnAct::None;   // No long press
-}
-
-uint8_t __Button::getPin() const
+void initButtons()
 {
-    return pin_;
+    pinMode(BUTTON_A_PIN,INPUT_PULLUP);
+    pinMode(BUTTON_B_PIN,INPUT_PULLUP);
+    pinMode(BUTTON_C_PIN,INPUT_PULLUP);
+    pinMode(BUTTON_D_PIN,INPUT_PULLUP);
 }
 
+// 封装按键检测函数
+void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFlag, bool& longPressFlag, bool& releaseFlag) {
+    // 读取按键状态
+    int reading = digitalRead(buttonPin);
+
+    // 检测按键状态是否改变
+    if (reading != button.lastButtonState) {
+        button.lastDebounceTime = millis();
+    }
+
+    // 消抖处理
+    if ((millis() - button.lastDebounceTime) > debounceDelay) {
+        if (reading != button.buttonState) {
+            button.buttonState = reading;
+
+            if (button.buttonState == LOW) {
+                // 按键按下
+                button.pressStartTime = millis();
+                button.longPressTriggered = false;
+            } else {
+                // 按键释放
+                unsigned long pressDuration = millis() - button.pressStartTime;
+                if (!button.longPressTriggered && pressDuration < longPressTime) {
+                    // 短按事件
+                    shortPressFlag = true;
+                }
+                releaseFlag = true;
+            }
+        }
+    }
+
+    // 检测长按事件
+    if (button.buttonState == LOW && (millis() - button.pressStartTime) >= longPressTime) {
+        if (!button.longPressTriggered) {
+            longPressFlag = true;
+            button.longPressTriggered = true;
+        }
+    }
+
+    // 更新上一次的按键状态
+    button.lastButtonState = reading;
+}

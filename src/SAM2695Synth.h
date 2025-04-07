@@ -8,12 +8,6 @@
 #include <Arduino.h>
 #include "SAM2695_Def.h"
 
-struct Note {
-    uint8_t channel;
-    uint8_t pitch;
-    uint8_t velocity;
-};
-
 class SAM2695Synth {
 public:
     static SAM2695Synth& getInstance();
@@ -21,9 +15,10 @@ public:
                uint8_t RX = 42, uint8_t TX = 43);
 
     void setInstrument(uint8_t bank, uint8_t channel, uint8_t value);
-    void setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity);
+    void setNoteOn(uint8_t channel, uint8_t pitch = -1, uint8_t velocity = -1);
     void setNoteOff(uint8_t channel, uint8_t pitch, uint8_t velocity);
     void setAllNotesOff(uint8_t channel);
+    void playChord(const musicData& chord);
     void setPitch(uint8_t pitch);
     uint8_t getPitch() const;
     void setVelocity(uint8_t velocity);
@@ -35,7 +30,8 @@ public:
     void decreaseBpm();
     void setBpm(uint8_t bpm);
     uint8_t getBpm() const;
-
+    void setChord(const musicData& chord);
+    musicData getChord() const;
 
 private:
     SAM2695Synth();
@@ -46,6 +42,7 @@ private:
     uint8_t           _pitch;
     uint8_t           _velocity;
     uint8_t           _bpm;
+    musicData         _chord;
 };
 
 

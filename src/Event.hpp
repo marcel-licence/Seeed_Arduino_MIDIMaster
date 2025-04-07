@@ -5,19 +5,19 @@
 enum EventType
 {
     NoEvent,
-    BtnAPressed,
-    BtnBPressed,
-    BtnCPressed,
-    BtnDPressed,
-    BtnAReleased,
-    BtnBReleased,
-    BtnCReleased,
-    BtnDReleased,
-    BtnALongPressed,
-    BtnBLongPressed,
-    BtnCLongPressed,
-    BtnDLongPressed,
-    TimeOutEvent,
+    APressed,
+    BPressed,
+    CPressed,
+    DPressed,
+    AReleased,
+    BReleased,
+    CReleased,
+    DReleased,
+    BtnReleased,
+    ALongPressed,
+    BLongPressed,
+    CLongPressed,
+    DLongPressed,
 };
 
 class Event

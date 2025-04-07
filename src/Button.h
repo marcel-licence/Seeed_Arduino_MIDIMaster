@@ -1,47 +1,50 @@
-/*
-	Button - a small library for Arduino to handle button debouncing
-	
-	MIT licensed.
-*/
+//
+// Created by Administrator on 25-4-7.
+//
 
-#ifndef Button_h
-#define Button_h
-#include "Arduino.h"
+#ifndef BUTTON_H
+#define BUTTON_H
+
+#include <Arduino.h>
+
+#define BUTTON_A_PIN 1
+#define BUTTON_B_PIN 2
+#define BUTTON_C_PIN 3
+#define BUTTON_D_PIN 4
 
 enum BtnAct
 {
-	None = 0,
-	Toggled,
-	Pressed,
-	Released,
-	LongPressed
+    None,
+    ShortPress,
+    LongPress,
+    Release
 };
 
-class __Button
-{
-public:
-	__Button(uint8_t pin, uint16_t debounce_ms = 100);
-	void begin();
-	bool read();
-	bool has_changed();
-	BtnAct toggled();
-	BtnAct pressed();
-	BtnAct released();
-	BtnAct longPressed();
-	uint8_t getPin() const;
+extern bool shortPressFlag_A;
+extern bool longPressFlag_A;
+extern bool releaseFlag_A;
+extern bool shortPressFlag_B;
+extern bool longPressFlag_B;
+extern bool releaseFlag_B;
+extern bool shortPressFlag_C;
+extern bool longPressFlag_C;
+extern bool releaseFlag_C;
+extern bool shortPressFlag_D;
+extern bool longPressFlag_D;
+extern bool releaseFlag_D;
 
-	const static bool PRESSED = LOW;
-	const static bool RELEASED = HIGH;
-
-private:
-	uint8_t  pin_;
-	uint16_t delay_;
-	bool     state_;
-	uint32_t ignoreUntil_;
-	bool     hasChanged_;
-	unsigned long pressedTime_ ;  // Track the time when button was pressed
-	unsigned long longPressThreshold_ ; // Define the long press duration threshold (in milliseconds)
-	bool longPressFlag_;
+struct BtnState {
+    int buttonState;
+    int lastButtonState;
+    unsigned long lastDebounceTime;
+    unsigned long pressStartTime;
+    bool longPressTriggered;
 };
 
-#endif
+void initButtons();
+// void detectButtonEvents(uint8_t buttonPin, BtnState& button, enum BtnAct& act);
+void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFlag, bool& releaseFlag,bool& longPressFlag);
+
+
+
+#endif //BUTTON_H

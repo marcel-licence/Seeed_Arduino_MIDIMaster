@@ -1,38 +1,98 @@
 #include <Arduino.h>
-#include "ButtonState.hpp"
-#include "EmmaButton.hpp"
+#include "ButtonState.h"
 #include "SAM2695Synth.h"
 #include "State.hpp"
+#include "Button.h"
 
-#define STATE_1_LED_TIME 800
-#define STATE_2_LED_TIME 400
-#define STATE_3_LED_TIME 200
+//LED toggle events corresponding to different modes
+#define STATE_1_LED_TIME 2000
+#define STATE_2_LED_TIME 500
+#define STATE_3_LED_TIME 100
 
-SAM2695Synth synth = SAM2695Synth::getInstance();
-EmmaButton button;
+//Define the structure needed for the button
+BtnState btnA = {HIGH, HIGH, 0, 0, false};
+BtnState btnB = {HIGH, HIGH, 0, 0, false};
+BtnState btnC = {HIGH, HIGH, 0, 0, false};
+BtnState btnD = {HIGH, HIGH, 0, 0, false};
+
+//Example of multi-track chord data definition
+const musicData channel_1_chord =
+{
+    CHANNEL_1,
+    {
+        {NOTE_C4, true},
+        {NOTE_E4, true},
+        {NOTE_G4, true},
+        {NOTE_C5, false}
+    },
+    VELOCITY_DEFAULT ,
+    BPM_DEFAULT + BPM_STEP,
+};
+
+const musicData channel_2_chord =
+{
+    CHANNEL_2,
+    {
+        {NOTE_G6, true},
+    },
+    VELOCITY_DEFAULT ,
+    BPM_DEFAULT - BPM_STEP,
+};
+
+const musicData channel_3_chord =
+{
+    CHANNEL_3,
+    {
+        {NOTE_G6, true},
+    },
+    VELOCITY_DEFAULT ,
+    BPM_DEFAULT - BPM_STEP,
+};
+const musicData channel_4_chord =
+{
+    CHANNEL_4,
+    {
+        {NOTE_G6, true},
+    },
+    VELOCITY_DEFAULT ,
+    BPM_DEFAULT + BPM_STEP,
+};
+
+//get synth
+SAM2695Synth synth = SAM2695Synth::getInstance();;
+//create state machine and get state manager
 StateMachine stateMachine;
-
-bool isPressed = false;
-unsigned long previousMillis = 0;   // Record the time of the last sent MIDI signal.
-int noteType = QUATER_NOTE;         // Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
-uint8_t drupCount = 0;              // Count the beats and play different notes
-uint8_t voice = 50;
-uint8_t  modeID = 0;                // current mode id
-int ledTime = 0;                    // LED Interval time
-unsigned long previousMillis2 = 0;  // Record the time of the last LED change
+StateManager* manager = StateManager::getInstance();
 
 
-void setup() {
-    //init serial
-    Serial.begin(115200);
-    //init led
+int beatCount = 0;                                  // Beat counter
+int noteType = QUATER_NOTE;                         // Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
+int beatsPerBar = BEATS_BAR_DEFAULT;                // Beats per measure, can be 2, 3, or 4
+
+unsigned long preMillisCh_1 = 0;                    // Record the time of the last MIDI signal sent on track 1
+unsigned long preMillisCh_2 = 0;                    // Record the time of the last MIDI signal sent on track 2
+unsigned long preMillisCh_3 = 0;                    // Record the time of the last MIDI signal sent on track 3
+unsigned long preMillisCh_4 = 0;                    // Record the time of the last MIDI signal sent on track 4
+unsigned long preMillisCh_drup = 0;                 // Record the time of the last MIDI signal sent on track drup
+uint8_t drupCount = 0;                              // drup track count
+
+//LED data
+uint8_t  modeID = State1::ID;                       // state mode id 
+int ledTime = STATE_1_LED_TIME;                     // LED toggle events TIME
+unsigned long previousMillisLED = 0;                // Record the time of  the last LED toggle
+
+
+void setup()
+{
+    //init usb serial port
+    Serial.begin(USB_SERIAL_BAUD_RATE);
+    //init LED
     pinMode(LED_BUILTIN, OUTPUT);
+    initButtons();
     delay(3000);
     //init synth
     synth.begin();
-    //get state manager
-    StateManager* manager = StateManager::getInstance();
-    //regist button state
+    //regist three mode state
     manager->registerState(new State1());
     manager->registerState(new State2());
     manager->registerState(new State3());
@@ -45,7 +105,7 @@ void setup() {
         StateManager::releaseInstance();
         return ;
     }
-    Serial.println("stateMachine ready!");
+    Serial.println("synth and state machine ready!");
 }
 
 void loop()
@@ -57,140 +117,70 @@ void loop()
         delete event;
     }
     multiTrackPlay();
-    ledShowByState();
+    ledShow();
 }
 
 Event* getNextEvent()
 {
-    //Used to control long press and short press events. 
-    //A short press is triggered when released, otherwise
-    //it is considered a long press.
-    if(button.A.pressed()==BtnAct::Pressed
-        || button.B.pressed()==BtnAct::Pressed
-        || button.C.pressed()==BtnAct::Pressed
-        || button.D.pressed()==BtnAct::Pressed)
-    {
-        isPressed = true;
-    }
+    detectButtonEvents(BUTTON_A_PIN, btnA, shortPressFlag_A, longPressFlag_A, releaseFlag_A);
+    detectButtonEvents(BUTTON_B_PIN, btnB, shortPressFlag_B, longPressFlag_B, releaseFlag_B);
+    detectButtonEvents(BUTTON_C_PIN, btnC, shortPressFlag_C, longPressFlag_C, releaseFlag_C);
+    detectButtonEvents(BUTTON_D_PIN, btnD, shortPressFlag_D, longPressFlag_D, releaseFlag_D);
 
-    if(button.A.longPressed()==BtnAct::LongPressed)
-    {
-        isPressed = false;
-        Event* e = new Event(EventType::BtnALongPressed);
+    if (shortPressFlag_A) {
+        shortPressFlag_A = false;
+        Event* e = new Event(EventType::APressed);
+        return e;
+    }
+    if (longPressFlag_A) {
+        longPressFlag_A = false;
+        Event* e = new Event(EventType::ALongPressed);
         return e;
     }
 
-    if(button.B.longPressed()==BtnAct::LongPressed)
-    {
-        isPressed = false;
-        Event* e = new Event(EventType::BtnBLongPressed);
+    if (shortPressFlag_B) {
+        shortPressFlag_B = false;
+        Event* e = new Event(EventType::BPressed);
+        return e;
+    }
+    if (longPressFlag_B) {
+        longPressFlag_B = false;
+        Event* e = new Event(EventType::BLongPressed);
         return e;
     }
 
-    if(button.C.longPressed()==BtnAct::LongPressed)
-    {
-        isPressed = false;
-        Event* e = new Event(EventType::BtnCLongPressed);
+    if (shortPressFlag_C) {
+        shortPressFlag_C = false;
+        Event* e = new Event(EventType::CPressed);
+        return e;
+    }
+    if (longPressFlag_C) {
+        longPressFlag_C = false;
+        Event* e = new Event(EventType::CLongPressed);
         return e;
     }
 
-    if(button.D.longPressed()==BtnAct::LongPressed)
-    {
-        isPressed = false;
-        Event* e = new Event(EventType::BtnDLongPressed);
+    if (shortPressFlag_D) {
+        shortPressFlag_D = false;
+        Event* e = new Event(EventType::DPressed);
+        return e;
+    }
+    if (longPressFlag_D) {
+        longPressFlag_D = false;
+        Event* e = new Event(EventType::DLongPressed);
         return e;
     }
 
-    if(button.A.released()==BtnAct::Released)
-    {
-        if(isPressed)
-        {
-            isPressed = false;
-            Event* e = new Event(EventType::BtnAPressed);
-            return e;
-        }
+    if (releaseFlag_A || releaseFlag_B || releaseFlag_C || releaseFlag_D) {
+        releaseFlag_A = releaseFlag_B = releaseFlag_C = releaseFlag_D = false;
+        Event* e = new Event(EventType::BtnReleased);
+        return e;
     }
-    if(button.B.released()==BtnAct::Released)
-    {
-        if(isPressed)
-        {
-            isPressed = false;
-            Event* e = new Event(EventType::BtnBPressed);
-            return e;
-        }
-    }
-    if(button.C.released()==BtnAct::Released)
-    {
-        if(isPressed)
-        {
-            isPressed = false;
-            Event* e = new Event(EventType::BtnCPressed);
-            return e;
-        }
-    }
-    if(button.D.released()==BtnAct::Released)
-    {
-        if(isPressed)
-        {
-            isPressed = false;
-            Event* e = new Event(EventType::BtnDPressed);
-            return e;
-        }
-    }
-
     return nullptr;
 }
 
-void multiTrackPlay()
-{
-    unsigned long interval = (BASIC_TIME / synth.getBpm()) / (noteType + 1);
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= interval)
-    {
-        previousMillis = currentMillis;
-        if(channel_1_on_off_flag)
-        {
-            uint8_t pitch = synth.getPitch();
-            synth.setNoteOn(CHANNEL_0,synth.getPitch(),voice);
-        }
-        if(channel_2_on_off_flag)
-        {
-            synth.setNoteOn(CHANNEL_1,synth.getPitch(),voice);
-        }
-        if(channel_3_on_off_flag)
-        {
-            synth.setNoteOn(CHANNEL_2,synth.getPitch(),voice);
-        }
-        if(channel_4_on_off_flag)
-        {
-            synth.setNoteOn(CHANNEL_3,synth.getPitch(),voice);
-        }
-        if(drum_on_off_flag)
-        {
-            if(drupCount % 4 == 0)
-            {
-                synth.setNoteOn(CHANNEL_9,NOTE_C2,voice);
-                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
-            }
-            else if(drupCount % 4 == 1)
-            {
-                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
-            }
-            else if(drupCount % 4 == 2)
-            {
-                synth.setNoteOn(CHANNEL_9,NOTE_D2,voice);
-                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
-            }
-            else if(drupCount % 4 == 3)
-            {
-                synth.setNoteOn(CHANNEL_9,NOTE_FS2,voice);
-            }
-            drupCount++;
-        }
-    }
-}
-
-void ledShowByState()
+//LED show for diffent mode
+void ledShow()
 {
     modeID = stateMachine.getCurrentState()->getID();
     if(modeID == State1::ID)
@@ -206,9 +196,78 @@ void ledShowByState()
         ledTime = STATE_3_LED_TIME;
     }
     unsigned long currentMillis = millis();
-    if(currentMillis - previousMillis2 >= ledTime)
+    if(currentMillis - previousMillisLED >= ledTime)
     {
-        previousMillis2 = millis();
+        previousMillisLED = millis();
         digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    }
+}
+
+//Multi-track chord play"
+void multiTrackPlay()
+{
+    unsigned long currentMillis = millis();
+    if(channel_1_on_off_flag)
+    {
+        if (currentMillis - preMillisCh_1 >= channel_1_chord.bpm)
+        {
+            preMillisCh_1 = currentMillis;
+            synth.playChord(channel_1_chord);
+        }
+    }
+
+    if(channel_2_on_off_flag)
+    {
+        if(currentMillis - preMillisCh_2 >= channel_2_chord.bpm)
+        {
+            preMillisCh_2 = currentMillis;
+            synth.playChord(channel_2_chord);
+        }
+    }
+
+    if(channel_3_on_off_flag)
+    {
+        if(currentMillis - preMillisCh_3 >= channel_3_chord.bpm)
+        {
+            preMillisCh_3 = currentMillis;
+            synth.playChord(channel_3_chord);
+        }
+    }
+
+    if(channel_4_on_off_flag)
+    {
+        if(currentMillis - preMillisCh_4 >= channel_4_chord.bpm)
+        {
+            preMillisCh_4 = currentMillis;
+            synth.playChord(channel_4_chord);
+        }
+    }
+
+    unsigned long interval = (BASIC_TIME / synth.getBpm()) / (noteType + 1);
+    if (currentMillis - preMillisCh_drup >= interval)
+    {
+        preMillisCh_drup = currentMillis;
+        if(drum_on_off_flag)
+        {
+            if(drupCount % 4 == 0)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_C2,VELOCITY_DEFAULT);
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,VELOCITY_DEFAULT);
+            }
+            else if(drupCount % 4 == 1)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,VELOCITY_DEFAULT);
+            }
+            else if(drupCount % 4 == 2)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_D2,VELOCITY_DEFAULT);
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,VELOCITY_DEFAULT);
+            }
+            else if(drupCount % 4 == 3)
+            {
+                synth.setNoteOn(CHANNEL_9,NOTE_FS2,VELOCITY_DEFAULT);
+            }
+            drupCount++;
+        }
     }
 }

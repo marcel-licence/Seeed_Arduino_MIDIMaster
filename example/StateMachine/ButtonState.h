@@ -25,6 +25,7 @@ bool drum_on_off_flag = false;
 unsigned long btnPressStartTime  = 0;
 uint8_t buttonPressCount = 0;
 bool isRecording = false;
+uint8_t randomNote = 0;
 
 
 //mode 1
@@ -50,62 +51,66 @@ public:
         }
 
         switch(event->getType()){
-            case EventType::BtnAPressed:{
-				Serial.println("Mode 1 Button A Pressed");
+            case EventType::APressed:{
+					Serial.println("Mode 1 Button A Pressed");
             		srand(static_cast<unsigned int>(time(0)));
-            		int randomNumber = rand() % 128;
-            		synth.setInstrument(0,0,randomNumber);
+            		randomNote = rand() % 128;
+            		synth.setInstrument(0,CHANNEL_10,randomNote);
+            		synth.setNoteOn(CHANNEL_10,randomNote,80);
             		return true;
             };
-            case EventType::BtnBPressed:{
+            case EventType::BPressed:{
             		Serial.println("Mode 1 Button B Pressed");
             		synth.decreasePitch();
             		return true;
             };
-            case EventType::BtnCPressed:{
+            case EventType::CPressed:{
             		Serial.println("Mode 1 Button C Pressed");
             		synth.increasePitch();
             		return true;
             };
-            case EventType::BtnDPressed:{
+            case EventType::DPressed:{
             		Serial.println("Mode 1 Button D Pressed");
 					drum_on_off_flag = !drum_on_off_flag;
             		return true;
             };
-            case EventType::BtnALongPressed:{
+            case EventType::ALongPressed:{
             		Serial.println("Mode 1 Button A Long Pressed");
             		return true;
             };
-            case EventType::BtnBLongPressed:{
+            case EventType::BLongPressed:{
             		Serial.println("Mode 1 Button B Long Pressed");
             		synth.decreaseVelocity();
             		return true;
             };
-            case EventType::BtnCLongPressed:{
+            case EventType::CLongPressed:{
             		Serial.println("Mode 1 Button C Long Pressed");
             		synth.increaseVelocity();
             		return true;
             };
-            case EventType::BtnDLongPressed:{
+            case EventType::DLongPressed:{
             		Serial.println("Mode 1 Button D Long Pressed");
-				//next mode index
-				int index = 2;
-            	State* nextState = StateManager::getInstance()->getState(index);
-            	if(nextState != nullptr){
-            		machine->changeState(nextState);
+					//next mode index
+					int index = 2;
+		            State* nextState = StateManager::getInstance()->getState(index);
+		            if(nextState != nullptr){
+            			machine->changeState(nextState);
+            			entryFlag = true;
+            			return true;
+		            }
+		            entryFlag = false;
+		            return true;
+            }
+		    case EventType::BtnReleased:{
+            		for(uint8_t i = 0;i<16;i++)
+            		{
+            			synth.setAllNotesOff(i);
+            		}
             		entryFlag = true;
-            		return true;
-            	}
-            	entryFlag = false;
-            	return true;
-            }
-
-        	case EventType::NoEvent:{
-            	entryFlag = true;
-            }
-            default:
-                return false;
-        }
+		    }
+		    default:
+					return false;
+		    }
     }
     virtual int getID() const {return ID;}
     virtual const char* getName() const {return "ButtonStateOne";}
@@ -132,30 +137,13 @@ public:
 	    }
 
 	    switch(event->getType()){
-			case EventType::BtnAPressed:{
+			case EventType::APressed:{
 					Serial.println("Mode 2 Button A  Pressed");
-					srand(static_cast<unsigned int>(time(0)));
-					int randomNumber = rand() % 128;
-					synth.setInstrument(0,0,randomNumber);
-					return true;
-	        };
-			case EventType::BtnBPressed:{
-					Serial.println("Mode 2 Button B  Pressed");
-					synth.decreaseBpm();
-					return true;
-	        };
-			case EventType::BtnCPressed:{
-					Serial.println("Mode 2 Button C  Pressed");
-					synth.increaseBpm();
-					return true;
-	        };
-			case EventType::BtnDPressed:{
-					Serial.println("Mode 2 Button D  Pressed");
 					//first press
 					if(!isRecording)
 					{
 						btnPressStartTime = millis();		//record the start time
-						buttonPressCount = 1;            
+						buttonPressCount = 1;
 						isRecording = true;
 					}
 					else
@@ -172,7 +160,7 @@ public:
 					}
 					if (buttonPressCount == 4) {
 						//calculate the bpm
-						int bpm = 60000 / (millis() - btnPressStartTime);
+						int bpm = BASIC_TIME / (millis() - btnPressStartTime);
 						synth.setBpm(bpm);
 						Serial.println("BPM: " + String(bpm));
 						isRecording = false;
@@ -180,21 +168,36 @@ public:
 					}
 					return true;
 	        };
-			case EventType::BtnALongPressed:{
+			case EventType::BPressed:{
+					Serial.println("Mode 2 Button B  Pressed");
+					synth.decreaseBpm();
+					return true;
+	        };
+			case EventType::CPressed:{
+					Serial.println("Mode 2 Button C  Pressed");
+					synth.increaseBpm();
+					return true;
+	        };
+			case EventType::DPressed:{
+					Serial.println("Mode 2 Button D  Pressed");
+					drum_on_off_flag = !drum_on_off_flag;
+					return true;
+	        };
+			case EventType::ALongPressed:{
 					Serial.println("Mode 2 Button A Long Pressed");
 					return true;
 	        };
-			case EventType::BtnBLongPressed:{
+			case EventType::BLongPressed:{
 					Serial.println("Mode 2 Button B Long Pressed");
 					synth.decreaseVelocity();
 					return true;
 	        };
-			case EventType::BtnCLongPressed:{
+			case EventType::CLongPressed:{
 					Serial.println("Mode 2 Button C Long Pressed");
 					synth.increaseVelocity();
 					return true;
 	        };
-			case EventType::BtnDLongPressed:{
+			case EventType::DLongPressed:{
 				Serial.println("Mode 2 Button D Long Pressed");
 				if(entryFlag == false)
 				{
@@ -246,41 +249,41 @@ public:
 
 		switch(event->getType()){
 
-		case EventType::BtnAPressed:{
+		case EventType::APressed:{
 				Serial.println("Mode 3 Button A Pressed");
 				channel_1_on_off_flag = !channel_1_on_off_flag;
 				return true;
 		};
-		case EventType::BtnBPressed:{
+		case EventType::BPressed:{
 	    		Serial.println("Mode 3 Button B Pressed");
 				channel_2_on_off_flag = !channel_2_on_off_flag;
 				return true;
 		};
-		case EventType::BtnCPressed:{
+		case EventType::CPressed:{
                Serial.println("Mode 3 Button C Pressed");
 				channel_3_on_off_flag = !channel_3_on_off_flag;
 				return true;
 		};
-		case EventType::BtnDPressed:{
+		case EventType::DPressed:{
     			Serial.println("Mode 3 Button D Pressed");
 				channel_4_on_off_flag = !channel_4_on_off_flag;
 				return true;
 		};
-		case EventType::BtnALongPressed:{
+		case EventType::ALongPressed:{
 				Serial.println("Mode 3 Button A Long Pressed");
 				return true;
 		};
-		case EventType::BtnBLongPressed:{
+		case EventType::BLongPressed:{
     			Serial.println("Mode 3 Button B Long Pressed");
 				synth.decreaseVelocity();
 				return true;
 		};
-		case EventType::BtnCLongPressed:{
+		case EventType::CLongPressed:{
     			Serial.println("Mode 3 Button C Long Pressed");
 				synth.increaseVelocity();
 				return true;
 		};
-		case EventType::BtnDLongPressed:{
+		case EventType::DLongPressed:{
 				Serial.println("Mode 3 Button D Long Pressed");
 				if(entryFlag == false)
 					return false;
@@ -303,7 +306,6 @@ public:
 	virtual int getID() const {return ID;}
 	virtual const char* getName() const {return "ButtonStateThree";};
 };
-
 
 
 //error mode

@@ -55,7 +55,6 @@ void SAM2695Synth::setInstrument(uint8_t bank, uint8_t channel, uint8_t value)
         (uint8_t)(MIDI_CMD_PROGRAM_CHANGE | (channel & 0x0f)), value};
     sendCMD(CMD_PROGRAM_CHANGE_2, sizeof(CMD_PROGRAM_CHANGE_2));
     setPitch(value);
-    setNoteOn(channel,value,_velocity);
 }
 
 // Sends a MIDI "Note On" message to trigger a note on a specific MIDI channel
@@ -66,6 +65,10 @@ void SAM2695Synth::setInstrument(uint8_t bank, uint8_t channel, uint8_t value)
 //   velocity - The velocity (0-127) indicating how hard the note is struck (higher values for louder sounds).
 void SAM2695Synth::setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity)
 {
+    if(-1 == pitch)
+        pitch = _pitch;
+    if(-1 == velocity)
+        velocity = _velocity;
     uint8_t CMD_NOTE_ON[] = {(uint8_t)(MIDI_COMMAND_ON | (channel & 0x0f)),
                              pitch, velocity};
     sendCMD(CMD_NOTE_ON, sizeof(CMD_NOTE_ON));
@@ -96,6 +99,21 @@ void SAM2695Synth::setAllNotesOff(uint8_t channel)
     uint8_t CMD_CONTROL_CHANGE[] = {
         (uint8_t)(MIDI_CMD_CONTROL_CHANGE | (channel & 0x0f)), 0x7b, 0x00};
     sendCMD(CMD_CONTROL_CHANGE, sizeof(CMD_CONTROL_CHANGE));
+}
+
+// Plays a chord by sending MIDI "note on" messages for each active note
+// This function iterates through all the notes in the provided chord and sends a 
+// "note on" message for each note that is active (i.e., has its isOn flag set to true).
+// Parameters:
+//   chord - The chord data containing the notes to be played, their MIDI pitch, 
+//           and velocity, along with the MIDI channel to use for the playback.
+void SAM2695Synth::playChord(const musicData& chord)
+{
+    for (int i = 0; i < sizeof(chord.notes) / sizeof(chord.notes[0]); ++i) {
+        if (chord.notes[i].isOn) {
+            setNoteOn(chord.channel, chord.notes[i].pitch, chord.velocity);
+        }
+    }
 }
 
 // Sets the pitch value for the synthesizer.
@@ -130,14 +148,14 @@ void SAM2695Synth::increasePitch()
 {
     _pitch++;
     if(_pitch > NOTE_C8) _pitch = NOTE_C8;
-    setNoteOn(CHANNEL_10,_pitch,_velocity);
+    setNoteOn(CHANNEL_10, _pitch, _velocity);
 }
 
 void SAM2695Synth::decreasePitch()
 {
     _pitch--;
     if(_pitch < NOTE_B0) _pitch = NOTE_B0;
-    setNoteOn(CHANNEL_10,_pitch,_velocity);
+    setNoteOn(CHANNEL_10, _pitch, _velocity);
 }
 
 // Decreases the pitch value by 1, ensuring it does not go below the minimum allowed pitch.
@@ -195,6 +213,16 @@ void SAM2695Synth::setBpm(uint8_t bpm)
 uint8_t SAM2695Synth::getBpm() const
 {
     return _bpm;
+}
+
+void SAM2695Synth::setChord(const musicData& chord)
+{
+    _chord = chord;
+}
+
+musicData SAM2695Synth::getChord() const
+{
+    return _chord;
 }
 
 // Sends a command to the serial interface.

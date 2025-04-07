@@ -5,7 +5,7 @@
 
 /*------------------------------------------- Defines begin -------------------------------------------*/
 #define MIDI_SERIAL_BAUD_RATE           31250   //MIDI serial baud rate
-#define USB_SERIAL_BAUD_RATE            9600    //USB  serial baud rate
+#define USB_SERIAL_BAUD_RATE            115200    //USB  serial baud rate
 #define MIDI_COMMAND_ON                 0x90    //MIDI Control Switch - On
 #define MIDI_COMMAND_OFF                0x80    //MIDI Control Switch - Off
 #define BPM_DEFAULT                     120     //default bpm
@@ -17,6 +17,7 @@
 #define VELOCITY_MIN                    0       //min velocity(0~127) 0
 #define VELOCITY_MAX                    127     //max velocity(0~127) 127
 #define VELOCITY_STEP                   10      //step velocity
+#define VELOCITY_DEFAULT                64      //default velocity(0~127) 64
 #define BASIC_TIME                      60000   //The number of milliseconds corresponding to 1 minute
 #define QUATER_NOTE                     0       //Quarter note
 #define EIGHTH_NOTE                     1       //Eighth note
@@ -25,6 +26,9 @@
 #define BEATES_BAR_2                    2       //2/4 beat
 #define BEATS_BAR_3                     3       //3/4 beat
 #define BEATS_BAR_4                     4       //4/4 beat
+#define NOTE_COUNT_DEFAULT              4       //default note count
+#define NOTE_COUNT_MIN                  1       //min note count
+#define NOTE_COUNT_MAX                  16      //max note count
 
 
 /* define channel begin */
@@ -272,32 +276,17 @@ typedef enum {
 /*------------------------------------------- Defines end -------------------------------------------*/
 
 /*------------------------------------------- Structs begin -------------------------------------------*/
-typedef struct
+struct oneNote
 {
-    byte channel;
-    byte pitch;
-    byte velocity;
-    byte step;
-} StepNote;
-
-//! add new struct for test
-struct StepNote2
-{
-    byte channel;
-    byte pitch;
-    byte velocity;
-    byte bpm;
+    uint8_t pitch;
+    bool    isOn;
 };
-
-// default values for sequence array members
-const StepNote DEFAULT_NOTE = {0x0, 0x0, 0x0, 0x0};
+struct musicData
+{
+    uint8_t channel;
+    oneNote notes[NOTE_COUNT_DEFAULT];
+    uint8_t velocity;
+    unsigned long bpm;
+};
 /*------------------------------------------- Structs end -------------------------------------------*/
-
-/*------------------------------------------- callback function begin -------------------------------------------*/
-using MIDIcallback = void (*)(byte channel, byte command, byte arg1, byte arg2);
-using StepCallback = void (*)(int current, int last);
-//! add new callback function type for test
-using MIDIcallBack2 = void(*)(struct StepNote2& note);
-/**------------------------------------------- callback function end -------------------------------------------*/
-
 #endif
