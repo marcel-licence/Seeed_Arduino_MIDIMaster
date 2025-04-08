@@ -55,6 +55,7 @@ const musicData channel_3_chord =
     VELOCITY_DEFAULT ,
     BPM_DEFAULT - BPM_STEP,
 };
+
 const musicData channel_4_chord =
 {
     CHANNEL_9,
