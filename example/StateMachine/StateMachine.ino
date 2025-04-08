@@ -135,7 +135,7 @@ Event* getNextEvent()
     detectButtonEvents(BUTTON_C_PIN, btnC, shortPressFlag_C, longPressFlag_C, releaseFlag_C);
     detectButtonEvents(BUTTON_D_PIN, btnD, shortPressFlag_D, longPressFlag_D, releaseFlag_D);
 
-    // 检查短按和长按标志
+    // Check short press and long press flags
     for (const auto& flags : buttonFlags) {
         if (flags.shortPress) {
             flags.shortPress = false;
@@ -147,7 +147,7 @@ Event* getNextEvent()
         }
     }
 
-    // 检查释放标志
+    // Check release flag
     bool anyReleased = false;
     for (auto& flags : buttonFlags) {
         if (flags.release) {
