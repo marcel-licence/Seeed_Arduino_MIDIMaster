@@ -6,19 +6,13 @@
 #define BUTTON_H
 
 #include <Arduino.h>
+#include "Event.hpp"
 
 #define BUTTON_A_PIN 1
 #define BUTTON_B_PIN 2
 #define BUTTON_C_PIN 3
 #define BUTTON_D_PIN 4
 
-enum BtnAct
-{
-    None,
-    ShortPress,
-    LongPress,
-    Release
-};
 
 extern bool shortPressFlag_A;
 extern bool longPressFlag_A;
@@ -33,6 +27,7 @@ extern bool shortPressFlag_D;
 extern bool longPressFlag_D;
 extern bool releaseFlag_D;
 
+//
 struct BtnState {
     int buttonState;
     int lastButtonState;
@@ -41,8 +36,15 @@ struct BtnState {
     bool longPressTriggered;
 };
 
+struct ButtonFlags {
+    bool& shortPress;
+    bool& longPress;
+    bool& release;
+    EventType shortPressType;
+    EventType longPressType;
+};
+
 void initButtons();
-// void detectButtonEvents(uint8_t buttonPin, BtnState& button, enum BtnAct& act);
 void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFlag, bool& releaseFlag,bool& longPressFlag);
 
 

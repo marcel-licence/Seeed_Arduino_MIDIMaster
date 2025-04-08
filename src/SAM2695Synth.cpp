@@ -54,7 +54,6 @@ void SAM2695Synth::setInstrument(uint8_t bank, uint8_t channel, uint8_t value)
     uint8_t CMD_PROGRAM_CHANGE_2[] = {
         (uint8_t)(MIDI_CMD_PROGRAM_CHANGE | (channel & 0x0f)), value};
     sendCMD(CMD_PROGRAM_CHANGE_2, sizeof(CMD_PROGRAM_CHANGE_2));
-    setPitch(value);
 }
 
 // Sends a MIDI "Note On" message to trigger a note on a specific MIDI channel
@@ -156,7 +155,6 @@ void SAM2695Synth::increasePitch()
 {
     _pitch++;
     if(_pitch > NOTE_C8) _pitch = NOTE_C8;
-    setNoteOn(CHANNEL_10, _pitch, _velocity);
 }
 
 // Decreases the pitch value by 1, ensuring it does not go below the minimum allowed pitch.
@@ -168,7 +166,6 @@ void SAM2695Synth::decreasePitch()
 {
     _pitch--;
     if(_pitch < NOTE_B0) _pitch = NOTE_B0;
-    setNoteOn(CHANNEL_10, _pitch, _velocity);
 }
 
 // Increases the velocity of the synthesizer and adjusts the volume for all MIDI channels.

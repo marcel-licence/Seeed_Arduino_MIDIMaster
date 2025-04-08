@@ -4,7 +4,7 @@
 
 enum EventType
 {
-    NoEvent,
+    None,
     APressed,
     BPressed,
     CPressed,
@@ -19,6 +19,8 @@ enum EventType
     CLongPressed,
     DLongPressed,
 };
+
+
 
 class Event
 {
@@ -54,24 +56,6 @@ public:
 private:
     EventType _type;
     unsigned long _timestamp;
-};
-
-
-class ButtonEvent: public Event {
-public:
-    ButtonEvent(EventType type, int buttonID)
-        : Event(type), _buttonID(buttonID)
-    {
-
-    }
-
-    int getButtonID() const
-    {
-        return _buttonID;
-    }
-
-private:
-    int _buttonID;
 };
 
 #endif // EVENT_HPP
