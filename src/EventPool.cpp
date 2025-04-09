@@ -8,7 +8,7 @@ EventPool::EventPool()
     :currentEventIndex(0)
 {
     for (int i = 0; i < EVENT_POOL_SIZE; i++) {
-        eventPool[i] = Event();  // 默认事件类型为 None
+        eventPool[i] = Event();  // default event : None
     }
     reset();
 }
@@ -39,7 +39,7 @@ void EventPool::recycleEvent(Event* event)
 
 void EventPool::reset()
 {
-    // 重置事件池，回收所有事件
+    //reset pool
     for (int i = 0; i < EVENT_POOL_SIZE; i++) {
         eventPool[i].setInUse(false);
     }

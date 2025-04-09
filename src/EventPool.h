@@ -8,7 +8,7 @@
 #include <Arduino.h>
 #include "Event.h"
 
-// 事件池的大小，假设最多支持3个事件
+// size of event pool now is 3
 #define EVENT_POOL_SIZE 3
 
 
@@ -21,8 +21,8 @@ public:
     void reset();
 
 private:
-    Event eventPool[EVENT_POOL_SIZE];  // 事件池
-    int currentEventIndex;  // 当前池中的事件索引
+    Event eventPool[EVENT_POOL_SIZE];  
+    int currentEventIndex;  // index
 };
 
 
