@@ -10,6 +10,7 @@
 #define STATE_1_LED_TIME 2000
 #define STATE_2_LED_TIME 500
 #define STATE_3_LED_TIME 100
+#define LED_PIN LED_BUILTIN
 
 //Define the structure needed for the button
 BtnState btnA = {HIGH, HIGH, 0, 0, false};
@@ -97,7 +98,7 @@ void setup()
     //init usb serial port
     Serial.begin(USB_SERIAL_BAUD_RATE);
     //init LED
-    pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(LED_PIN, OUTPUT);
     initButtons();
     delay(3000);
     //init synth -- xiao_esp32c3
@@ -215,7 +216,7 @@ void ledShow()
     if(currentMillis - previousMillisLED >= ledTime)
     {
         previousMillisLED = millis();
-        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+        digitalWrite(LED_PIN, !digitalRead(LED_PIN));
     }
 }
 
