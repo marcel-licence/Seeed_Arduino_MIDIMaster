@@ -1,6 +1,7 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
 
+#define EVENT_ARR_SIZE  3
 
 enum EventType
 {

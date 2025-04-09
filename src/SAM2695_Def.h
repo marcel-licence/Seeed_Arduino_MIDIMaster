@@ -286,7 +286,7 @@ struct musicData
     uint8_t channel;
     oneNote notes[NOTE_COUNT_DEFAULT];
     uint8_t velocity;
-    unsigned long bpm;
+    unsigned long delay;
 };
 /*------------------------------------------- Structs end -------------------------------------------*/
 #endif

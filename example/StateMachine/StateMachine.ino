@@ -2,7 +2,6 @@
 #include "AuditionMode.h"
 #include "SAM2695Synth.h"
 #include "Button.h"
-#include "EventPool.h"
 #include "BpmMode.h"
 #include "TrackMode.h"
 #include "ErrorState.h"
@@ -75,8 +74,6 @@ SAM2695Synth synth = SAM2695Synth::getInstance();
 //create state machine
 StateMachine stateMachine;
 StateManager* manager = StateManager::getInstance();
-//create event object pool
-EventPool eventPool;
 
 int beatCount = 0;                                  // Beat counter
 int noteType = QUATER_NOTE;                         // Note type selection: 0 (quarter note), 1 (eighth note), 2 (sixteenth note)
@@ -93,7 +90,7 @@ uint8_t drupCount = 0;                              // drup track count
 uint8_t  modeID = AuditionMode::ID;                 // state mode id 
 int ledTime = STATE_1_LED_TIME;                     // LED toggle events TIME
 unsigned long previousMillisLED = 0;                // Record the time of  the last LED toggle
-
+Event eventArray[EVENT_ARR_SIZE];                   // create event array EventType : default EventType::None
 
 void setup()
 {
@@ -103,7 +100,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     initButtons();
     delay(3000);
-    //init synth
+    //init synth -- xiao_esp32c3
     synth.begin();
     //regist three mode state
     manager->registerState(new AuditionMode());
@@ -124,11 +121,13 @@ void setup()
 void loop()
 {
     Event* event = getNextEvent();
-    //如果有输入事件，则处理
-    if(event)
+    if(event != nullptr)
     {
         stateMachine.handleEvent(event);
-        eventPool.recycleEvent(event);
+        // set the event type is None
+        event->setType(EventType::None);
+        // Release the event's occupied status
+        event->setInUse(false);
     }
     multiTrackPlay();
     ledShow();
@@ -146,11 +145,29 @@ Event* getNextEvent()
     for (const auto& flags : buttonFlags) {
         if (flags.shortPress) {
             flags.shortPress = false;
-            return eventPool.getEvent(flags.shortPressType);
+            // "Find the first unused event in the array
+            for (int i = 0; i < EVENT_ARR_SIZE; i++) {
+                if (!eventArray[i].isInUse()) {
+                    // set the event type is shortPressType by button
+                    eventArray[i].setType(flags.shortPressType);
+                    // Mark as in use to prevent reuse
+                    eventArray[i].setInUse(true);
+                    return &eventArray[i];
+                }
+            }
         }
         if (flags.longPress) {
             flags.longPress = false;
-            return eventPool.getEvent(flags.longPressType);
+            // "Find the first unused event in the array
+            for (int i = 0; i < EVENT_ARR_SIZE; i++) {
+                if (!eventArray[i].isInUse()) {
+                    // set the event type is longPressType by button
+                    eventArray[i].setType(flags.longPressType);
+                    // Mark as in use to prevent reuse
+                    eventArray[i].setInUse(true);
+                    return &eventArray[i];
+                }
+            }
         }
     }
 
@@ -163,7 +180,16 @@ Event* getNextEvent()
     }
 
     if (anyReleased) {
-        return eventPool.getEvent(EventType::BtnReleased);
+        // "Find the first unused event in the array
+        for (int i = 0; i < EVENT_ARR_SIZE; i++) {
+            if (!eventArray[i].isInUse()) {
+                // set the event type is BtnReleased
+                eventArray[i].setType(EventType::BtnReleased);
+                // Mark as in use to prevent reuse
+                eventArray[i].setInUse(true);
+                return &eventArray[i];
+            }
+        }
     }
 
     return nullptr;
@@ -199,7 +225,7 @@ void multiTrackPlay()
     unsigned long currentMillis = millis();
     if(channel_1_on_off_flag)
     {
-        if (currentMillis - preMillisCh_1 >= channel_1_chord.bpm)
+        if (currentMillis - preMillisCh_1 >= channel_1_chord.delay)
         {
             preMillisCh_1 = currentMillis;
             synth.playChord(channel_1_chord);
@@ -208,7 +234,7 @@ void multiTrackPlay()
 
     if(channel_2_on_off_flag)
     {
-        if(currentMillis - preMillisCh_2 >= channel_2_chord.bpm)
+        if(currentMillis - preMillisCh_2 >= channel_2_chord.delay)
         {
             preMillisCh_2 = currentMillis;
             synth.playChord(channel_2_chord);
@@ -217,7 +243,7 @@ void multiTrackPlay()
 
     if(channel_3_on_off_flag)
     {
-        if(currentMillis - preMillisCh_3 >= channel_3_chord.bpm)
+        if(currentMillis - preMillisCh_3 >= channel_3_chord.delay)
         {
             preMillisCh_3 = currentMillis;
             synth.playChord(channel_3_chord);
@@ -226,7 +252,7 @@ void multiTrackPlay()
 
     if(channel_4_on_off_flag)
     {
-        if(currentMillis - preMillisCh_4 >= channel_4_chord.bpm)
+        if(currentMillis - preMillisCh_4 >= channel_4_chord.delay)
         {
             preMillisCh_4 = currentMillis;
             synth.playChord(channel_4_chord);
