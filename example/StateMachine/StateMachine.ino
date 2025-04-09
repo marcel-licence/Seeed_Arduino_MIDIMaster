@@ -10,7 +10,13 @@
 #define STATE_1_LED_TIME 2000
 #define STATE_2_LED_TIME 500
 #define STATE_3_LED_TIME 100
+//define LED Pins 
 #define LED_PIN LED_BUILTIN
+//define buttons please look Button.h
+
+//define serial  -- XIAO to SAM2695
+#define XIAO_TX 44
+#define XIAO_RX 43
 
 //Define the structure needed for the button
 BtnState btnA = {HIGH, HIGH, 0, 0, false};
@@ -35,6 +41,7 @@ const musicData channel_1_chord =
         {NOTE_FS2, true},
     },
     VELOCITY_DEFAULT ,
+    0,
     BPM_DEFAULT + BPM_STEP,
 };
 
@@ -45,6 +52,7 @@ const musicData channel_2_chord =
         {NOTE_FS2, true},
     },
     VELOCITY_DEFAULT ,
+    1,
     BPM_DEFAULT - BPM_STEP,
 };
 
@@ -56,6 +64,7 @@ const musicData channel_3_chord =
         {NOTE_FS2, true},
     },
     VELOCITY_DEFAULT ,
+    2,
     BPM_DEFAULT - BPM_STEP,
 };
 
@@ -66,9 +75,10 @@ const musicData channel_4_chord =
         {NOTE_FS2, true},
     },
     VELOCITY_DEFAULT ,
+    3,
     BPM_DEFAULT + BPM_STEP,
 };
-
+musicData trackArr[] = {channel_1_chord,channel_2_chord,channel_3_chord,channel_4_chord};
 
 //create SAM2695Synth
 SAM2695Synth synth = SAM2695Synth::getInstance();
@@ -99,10 +109,12 @@ void setup()
     Serial.begin(USB_SERIAL_BAUD_RATE);
     //init LED
     pinMode(LED_PIN, OUTPUT);
+    //init button
     initButtons();
+    //init synth
+    synth.begin(&Serial2,MIDI_SERIAL_BAUD_RATE,XIAO_TX,XIAO_RX);
+    // synth.begin();
     delay(3000);
-    //init synth -- xiao_esp32c3
-    synth.begin();
     //regist three mode state
     manager->registerState(new AuditionMode());
     manager->registerState(new BpmMode());
@@ -266,23 +278,11 @@ void multiTrackPlay()
         preMillisCh_drup = currentMillis;
         if(drum_on_off_flag)
         {
-            if(drupCount % 4 == 0)
+            if(trackArr[drupCount].index == drupCount )
             {
-                synth.playChord(channel_1_chord);
+                synth.playChord(trackArr[drupCount]);
             }
-            else if(drupCount % 4 == 1)
-            {
-                synth.playChord(channel_2_chord);
-            }
-            else if(drupCount % 4 == 2)
-            {
-                synth.playChord(channel_3_chord);
-            }
-            else if(drupCount % 4 == 3)
-            {
-                synth.playChord(channel_4_chord);
-            }
-            drupCount++;
+            drupCount = (drupCount + 1) % (sizeof(trackArr)/sizeof(trackArr[0]));
         }
     }
 }

@@ -11,8 +11,7 @@
 class SAM2695Synth {
 public:
     static SAM2695Synth& getInstance();
-    void begin(HardwareSerial *serial = &Serial2, int baud = MIDI_SERIAL_BAUD_RATE,
-               uint8_t RX = 42, uint8_t TX = 43);
+    void begin(HardwareSerial *serial , int baud , uint8_t RX , uint8_t TX );
 
     void setInstrument(uint8_t bank, uint8_t channel, uint8_t value);
     void setNoteOn(uint8_t channel, uint8_t pitch = -1, uint8_t velocity = -1);
@@ -40,7 +39,6 @@ private:
     uint8_t           _pitch;
     uint8_t           _velocity;
     uint8_t           _bpm;
-    musicData         _chord;
 };
 
 

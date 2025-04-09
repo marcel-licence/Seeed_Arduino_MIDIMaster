@@ -6,7 +6,7 @@ param1 =  RX pin
 param2 =  TX pin 
 param3 = baudRate
 */
-SoftwareSerial mySerial(42, 43, 31250);
+SoftwareSerial mySerial(44, 43, 31250);
 void setup() {
     Serial.begin(9600);
     mySerial.begin();
