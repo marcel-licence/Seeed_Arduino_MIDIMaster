@@ -4,12 +4,12 @@
 
 #include "Button.h"
 
-// Debounce time (milliseconds)
+// 消抖时间（毫秒）
 const unsigned long debounceDelay = 50;
-// Long press time (milliseconds)
+// 长按时间（毫秒）
 const unsigned long longPressTime = 1000;
 
-// Event flags
+// 事件标志位
 bool shortPressFlag_A = false;
 bool longPressFlag_A = false;
 bool releaseFlag_A = false;
@@ -31,30 +31,30 @@ void initButtons()
     pinMode(BUTTON_D_PIN,INPUT_PULLUP);
 }
 
- // Encapsulate key detection function
+// 封装按键检测函数
 void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFlag, bool& longPressFlag, bool& releaseFlag) {
-    // Read key status
+    // 读取按键状态
     int reading = digitalRead(buttonPin);
 
-    // Detect if key status has changed
+    // 检测按键状态是否改变
     if (reading != button.lastButtonState) {
         button.lastDebounceTime = millis();
     }
 
-     // Debounce processing
+    // 消抖处理
     if ((millis() - button.lastDebounceTime) > debounceDelay) {
         if (reading != button.buttonState) {
             button.buttonState = reading;
 
             if (button.buttonState == LOW) {
-                // Key press
+                // 按键按下
                 button.pressStartTime = millis();
                 button.longPressTriggered = false;
             } else {
-                // Key release
+                // 按键释放
                 unsigned long pressDuration = millis() - button.pressStartTime;
                 if (!button.longPressTriggered && pressDuration < longPressTime) {
-                    // Short press event
+                    // 短按事件
                     shortPressFlag = true;
                 }
                 releaseFlag = true;
@@ -62,7 +62,7 @@ void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFla
         }
     }
 
-   // Detect long press event
+    // 检测长按事件
     if (button.buttonState == LOW && (millis() - button.pressStartTime) >= longPressTime) {
         if (!button.longPressTriggered) {
             longPressFlag = true;
@@ -70,6 +70,6 @@ void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFla
         }
     }
 
-     // Update the previous key status
+    // 更新上一次的按键状态
     button.lastButtonState = reading;
 }

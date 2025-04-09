@@ -238,16 +238,6 @@ uint8_t SAM2695Synth::getBpm() const
     return _bpm;
 }
 
-void SAM2695Synth::setChord(const musicData& chord)
-{
-    _chord = chord;
-}
-
-musicData SAM2695Synth::getChord() const
-{
-    return _chord;
-}
-
 // Sends a command to the serial interface.
 // This function sends a byte array (cmd) of a specified length (len) through the serial port.
 // It uses the _serial object's write method to transmit the command data.

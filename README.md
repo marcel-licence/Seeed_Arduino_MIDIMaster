@@ -5,35 +5,32 @@ This project is based on the **xiao_esp32s3** microcontroller and the **SAM2695*
 
 ## Features
 
-1. **Change Instrument Sounds**  
+**Change Instrument Sounds**  
    There are **127** different instrument sounds available. However, some sounds may have lower volume, which could result in less noticeable effects. Most sounds, however, are clear and suitable for various applications.
 
-2. **Change Tempo**  
+**Change Tempo**  
    You can modify the tempo of the music, allowing for flexible rhythm control and enabling playback at different speeds.
 
-3. **Change Scale**  
+**Change Scale**  
    The pitch of the notes can be adjusted, allowing you to change between higher or lower notes according to your needs.
 
-4. **Adjust Volume**  
+**Adjust Volume**  
    The volume of the sound can be adjusted to meet your requirements, making it adaptable to different environments and needs.
 
-5. **Multi-track Playback**  
+**Multi-track Playback**  
    Support for simultaneous playback of multiple tracks, where each track's tempo can be controlled independently via software.
 
-6. **Chord Playback**  
+**Chord Playback**  
    Supports chord playback, where chords are made up of multiple notes. The number of notes in the chord can be controlled via software, allowing for different melodies to be played.
 
-7. **Drum Beat Playback**  
+**Drum Beat Playback**  
    Track 9 is designated as a specific drum track for playing drum beats, which can be customized and edited.
 
-8. **State Machine Mode**  
+**State Machine Mode**  
    Utilizes a state machine to trigger different button functions based on the current state, allowing for more flexible and customizable operations.
 
-9. **LED Indicators**  
+**LED Indicators**  
    In the example program, three different states correspond to different LED blinking times for easy state differentiation.
-
-10. **Software Serial Port**  
-    Supports software serial communication, allowing you to select any two GPIO pins for serial communication and sending MIDI signals to other devices.
 
 ## Usage Instructions
 1. Download and import this library into your development environment.

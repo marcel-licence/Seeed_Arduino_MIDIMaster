@@ -30,8 +30,6 @@ public:
     void decreaseBpm();
     void setBpm(uint8_t bpm);
     uint8_t getBpm() const;
-    void setChord(const musicData& chord);
-    musicData getChord() const;
 
 private:
     SAM2695Synth();

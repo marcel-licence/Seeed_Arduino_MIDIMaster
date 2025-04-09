@@ -5,7 +5,7 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-#include "State.hpp"
+#include "State.h"
 
 using ErrorHandler = void (*)(int errorCode,const char* errorMsg);
 

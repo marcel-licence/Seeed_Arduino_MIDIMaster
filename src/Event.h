@@ -21,41 +21,22 @@ enum EventType
 };
 
 
-
 class Event
 {
 public:
-    Event(EventType type)
-        : _type(type)
-    {
-
-    }
-
-    Event(EventType type, unsigned long timestamp)
-        : _type(type)
-        , _timestamp(timestamp)
-    {
-
-    }
-
-    virtual ~Event()
-    {
-
-    }
-
-    EventType getType() const
-    {
-        return _type;
-    }
-
-    unsigned long getTimestamp() const
-    {
-        return _timestamp;
-    }
+    Event(EventType type = None);
+    Event(EventType type, unsigned long timestamp);
+    virtual ~Event();
+    EventType getType() const;
+    void setType(EventType type);
+    bool isInUse() const;
+    void setInUse(bool inUse);
+    unsigned long getTimestamp() const;
 
 private:
     EventType _type;
     unsigned long _timestamp;
+    bool _inUse;
 };
 
 #endif // EVENT_HPP
