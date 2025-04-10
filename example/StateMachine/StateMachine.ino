@@ -18,7 +18,52 @@
  *     #define BUTTON_D_PIN 5  // Button 4 on XIAO_ESP32C3
  *     For other models, refer to the corresponding documentation.
  * 
+ *
+ * This example has the following features:
+ * Mode 1:(Audition Mode)
+ *      The indicator blinks every 2 seconds, ON for 2s, OFF for 2s
+ *      Button A: 
+ *              Short press: Switch tone          
+ *              Long press: None
+ *      Button B: 
+ *              Short press: Decrease pitch       
+ *              Long press: Decrease overall volume
+ *      Button C: 
+ *              Short press: Increase pitch       
+ *              Long press: Increase overall volume
+ *      Button D:
+ *              Short press: Play/Stop drumbeat music  
+ *              Long press: Switch to the next mode
+ * Mode 2:(Bpm Mode)
+ *      The indicator blinks every 0.5 seconds, ON for 0.5s, OFF for 0.5s
+ *      Button A: 
+ *              Short press: None                
+ *              Long press: None
+ *      Button B: 
+ *              Short press: Decrease BPM         
+ *              Long press: Decrease overall volume
+ *      Button C: 
+ *              Short press: Increase BPM         
+ *              Long press: Increase overall volume
+ *      Button D: 
+ *              Short press: Play/Stop drumbeat music  
+ *              Long press: Switch to the next mode
+ * Mode 3:(Track Mode)
+ *      The indicator blinks every 0.1 seconds, ON for 0.1s, OFF for 0.1s
+ *      Button A: 
+ *              Short press: Play/Stop chord 1           
+ *              Long press: None
+ *      Button B: 
+ *              Short press: Play/Stop chord 2           
+ *              Long press: Decrease overall volume
+ *      Button C: 
+ *              Short press: Play/Stop chord 3           
+ *              Long press: Increase overall volume
+ *      Button D: 
+ *              Short press: Play/Stop a melody made of three chords  
+ *              Long press: Switch to the next mode (Mode 1)
  */
+
 
 #include <Arduino.h>
 #include "AuditionMode.h"
@@ -27,6 +72,7 @@
 #include "BpmMode.h"
 #include "TrackMode.h"
 #include "ErrorState.h"
+#include "music.h"
 
 //LED toggle events corresponding to different modes
 #define STATE_1_LED_TIME 2000
@@ -73,54 +119,6 @@ ButtonFlags buttonFlags[] = {
     {shortPressFlag_D, longPressFlag_D, releaseFlag_D, EventType::DPressed, EventType::DLongPressed}
 };
 
-//Example of multi-track chord data definition
-const musicData channel_1_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_C2, true},
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    0,
-    BPM_DEFAULT + BPM_STEP,
-};
-
-const musicData channel_2_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    1,
-    BPM_DEFAULT - BPM_STEP,
-};
-
-const musicData channel_3_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_D2, true},
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    2,
-    BPM_DEFAULT - BPM_STEP,
-};
-
-const musicData channel_4_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    3,
-    BPM_DEFAULT + BPM_STEP,
-};
-musicData trackArr[] = {channel_1_chord,channel_2_chord,channel_3_chord,channel_4_chord};
-
 //create SAM2695Synth
 SAM2695Synth synth = SAM2695Synth::getInstance();
 //create state machine
@@ -137,6 +135,8 @@ unsigned long preMillisCh_3 = 0;                    // Record the time of the la
 unsigned long preMillisCh_4 = 0;                    // Record the time of the last MIDI signal sent on track 4
 unsigned long preMillisCh_drup = 0;                 // Record the time of the last MIDI signal sent on track drup
 uint8_t drupCount = 0;                              // drup track count
+uint8_t countBytrack1 = 0;                          // music 1 count
+uint8_t countBytrack2 = 0;                          // music 2 count
 
 //LED data
 uint8_t  modeID = AuditionMode::ID;                 // state mode id 
@@ -301,33 +301,41 @@ void multiTrackPlay()
 
     if(channel_3_on_off_flag)
     {
-        if(currentMillis - preMillisCh_3 >= channel_3_chord.delay)
+        if(currentMillis - preMillisCh_3 >= track1[countBytrack1].delay)
         {
             preMillisCh_3 = currentMillis;
-            synth.playChord(channel_3_chord);
+            if(track1[countBytrack1].index == countBytrack1)
+            {
+                synth.playChord(track1[countBytrack1]);
+                countBytrack1 = (countBytrack1+1) % (sizeof(track1)/sizeof(track1[0]));
+            }
         }
     }
 
     if(channel_4_on_off_flag)
     {
-        if(currentMillis - preMillisCh_4 >= channel_4_chord.delay)
+        if(currentMillis - preMillisCh_4 >= track2[countBytrack2].delay)
         {
             preMillisCh_4 = currentMillis;
-            synth.playChord(channel_4_chord);
+            if(track2[countBytrack2].index == countBytrack2)
+            {
+                synth.playChord(track2[countBytrack2]);
+                countBytrack2 = (countBytrack2+1) % (sizeof(track2)/sizeof(track2[0]));
+            }
         }
     }
 
     unsigned long interval = (BASIC_TIME / synth.getBpm()) / (noteType + 1);
-    if (currentMillis - preMillisCh_drup >= interval)
+    if (drum_on_off_flag)
     {
-        preMillisCh_drup = currentMillis;
-        if(drum_on_off_flag)
+        if(currentMillis - preMillisCh_drup >= interval)
         {
-            if(trackArr[drupCount].index == drupCount )
+            preMillisCh_drup = currentMillis;
+            if(track3[drupCount].index == drupCount )
             {
-                synth.playChord(trackArr[drupCount]);
+                synth.playChord(track3[drupCount]);
             }
-            drupCount = (drupCount + 1) % (sizeof(trackArr)/sizeof(trackArr[0]));
+            drupCount = (drupCount + 1) % (sizeof(track3)/sizeof(track3[0]));
         }
     }
 }
