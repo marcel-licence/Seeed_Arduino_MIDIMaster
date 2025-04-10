@@ -23,12 +23,9 @@ bool shortPressFlag_D = false;
 bool longPressFlag_D = false;
 bool releaseFlag_D = false;
 
-void initButtons()
+void initButtons(uint8_t pin)
 {
-    pinMode(BUTTON_A_PIN,INPUT_PULLUP);
-    pinMode(BUTTON_B_PIN,INPUT_PULLUP);
-    pinMode(BUTTON_C_PIN,INPUT_PULLUP);
-    pinMode(BUTTON_D_PIN,INPUT_PULLUP);
+    pinMode(pin,INPUT_PULLUP);
 }
 
 // 封装按键检测函数

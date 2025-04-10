@@ -17,12 +17,12 @@ SAM2695Synth::SAM2695Synth()
 
 SAM2695Synth::~SAM2695Synth()
 {
-    if(_serial)
+    if(_serial != nullptr)
     {
         delete _serial;
         _serial = nullptr;
     }
-    if(_softSerial)
+    if(_softSerial != nullptr)
     {
         delete _softSerial;
         _softSerial = nullptr;
@@ -53,6 +53,11 @@ void SAM2695Synth::begin(HardwareSerial* serial, int baud, uint8_t RX, uint8_t T
     _serial->begin(baud, SERIAL_8N1, RX, TX);
 }
 
+// Initializes the software serial communication with the specified baud rate.
+// This function is called when the 'begin' function is invoked with a pointer to a SoftwareSerial object and a baud rate.
+// Parameters:
+//   serial - A pointer to the SoftwareSerial object that will handle the communication.
+//   baud - The baud rate for the serial communication (usually 9600, 115200, etc.).
 void SAM2695Synth::begin(SoftwareSerial *serial , int baud)
 {
     _softSerial = serial;

@@ -1,9 +1,11 @@
-#include <Arduino.h>
-#include <SoftwareSerial.h>
-#include "SAM2695Synth.h"
 /*
 use software serial , please download EspSoftwareSerial library
 */
+
+#include <Arduino.h>
+#include <SoftwareSerial.h>
+#include "SAM2695Synth.h"
+
 
 //define serial  -- XIAO to SAM2695
 #define XIAO_TX 44
@@ -18,8 +20,7 @@ void setup()
     Serial.begin(9600);
     //use software serial
     synth.begin(&swSerial,MIDI_SERIAL_BAUD_RATE);
-    delay(3000);
-    Serial.print("synth and serial ok!");
+    delay(1000);
 }
 void loop() 
 {

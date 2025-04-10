@@ -1,3 +1,7 @@
+/** 
+ * 
+*/
+
 #include <Arduino.h>
 #include "AuditionMode.h"
 #include "SAM2695Synth.h"
@@ -12,11 +16,11 @@
 #define STATE_3_LED_TIME 100
 //define LED Pins 
 #define LED_PIN LED_BUILTIN
-//define buttons please look Button.h
-
 //define serial  -- XIAO to SAM2695
-#define XIAO_TX 44
-#define XIAO_RX 43
+#define XIAO_TX 43
+#define XIAO_RX 44
+//define serial
+#define SERIAL Serial2
 
 //Define the structure needed for the button
 BtnState btnA = {HIGH, HIGH, 0, 0, false};
@@ -101,10 +105,8 @@ uint8_t drupCount = 0;                              // drup track count
 uint8_t  modeID = AuditionMode::ID;                 // state mode id 
 int ledTime = STATE_1_LED_TIME;                     // LED toggle events TIME
 unsigned long previousMillisLED = 0;                // Record the time of  the last LED toggle
-Event eventArray[EVENT_ARR_SIZE];                   // create event array EventType : default EventType::None
-
-//create soft serial
-// SoftwareSerial swSerial(XIAO_TX, XIAO_RX);//TX RX 
+// create event array EventType : default EventType::None
+Event eventArray[EVENT_ARR_SIZE];                   
 
 void setup()
 {
@@ -112,11 +114,13 @@ void setup()
     Serial.begin(USB_SERIAL_BAUD_RATE);
     //init LED
     pinMode(LED_PIN, OUTPUT);
-    //init button
-    initButtons();
-    //init synth -- 
-    synth.begin(&Serial2,MIDI_SERIAL_BAUD_RATE,XIAO_TX,XIAO_RX); //use hardware serial
-    // synth.begin(&swSerial,MIDI_SERIAL_BAUD_RATE); // use software serial
+    //synth init
+    synth.begin(&SERIAL, MIDI_SERIAL_BAUD_RATE, XIAO_RX, XIAO_TX);
+    //buttons init,button defines please look Button.h
+    initButtons(BUTTON_A_PIN);
+    initButtons(BUTTON_B_PIN);
+    initButtons(BUTTON_C_PIN);
+    initButtons(BUTTON_D_PIN);
     delay(3000);
     //regist three mode state
     manager->registerState(new AuditionMode());
@@ -148,7 +152,6 @@ void loop()
     multiTrackPlay();
     ledShow();
 }
-
 
 Event* getNextEvent()
 {

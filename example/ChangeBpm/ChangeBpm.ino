@@ -8,6 +8,12 @@ btn c : bpm-- step is BPM_STEP
 #include "SAM2695Synth.h"
 #include "Button.h"
 
+//define serial  -- XIAO to SAM2695
+#define XIAO_TX 43
+#define XIAO_RX 44
+//define serial
+#define SERIAL Serial2
+
 //get synth
 SAM2695Synth synth = SAM2695Synth::getInstance();
 //Define the structure needed for the button
@@ -28,11 +34,13 @@ void setup()
 {
     //init usb serial port
     Serial.begin(USB_SERIAL_BAUD_RATE);
-    delay(3000);
     //synth init
-    synth.begin();
-    //buttons init
-    initButtons();
+    synth.begin(&SERIAL, MIDI_SERIAL_BAUD_RATE, XIAO_RX, XIAO_TX);
+    //buttons init,button defines please look Button.h
+    initButtons(BUTTON_A_PIN);
+    initButtons(BUTTON_B_PIN);
+    initButtons(BUTTON_C_PIN);
+    delay(1000);
 }
 
 void loop()
@@ -69,9 +77,9 @@ void play()
         {
             previousMillis = currentMillis;
             if (beatCount == 0)
-                synth.setNoteOn(CHANNEL_9, NOTE_D2, VELOCITY_MAX);
+                synth.setNoteOn(CHANNEL_9, NOTE_D2, VELOCITY_DEFAULT);
             else
-                synth.setNoteOn(CHANNEL_9, NOTE_C2, VELOCITY_MAX);
+                synth.setNoteOn(CHANNEL_9, NOTE_C2, VELOCITY_DEFAULT);
     
             // Increment beat count
             beatCount++;

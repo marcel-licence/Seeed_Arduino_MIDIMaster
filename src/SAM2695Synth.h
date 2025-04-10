@@ -14,7 +14,7 @@ public:
     ~SAM2695Synth();
     static SAM2695Synth& getInstance();
     void begin(HardwareSerial *serial , int baud , uint8_t RX , uint8_t TX );
-    void begin(SoftwareSerial *serial , int baud );
+    void begin(SoftwareSerial *serial , int baud);
 
     void setInstrument(uint8_t bank, uint8_t channel, uint8_t value);
     void setNoteOn(uint8_t channel, uint8_t pitch = -1, uint8_t velocity = -1);
