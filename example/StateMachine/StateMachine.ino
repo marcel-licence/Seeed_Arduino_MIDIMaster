@@ -103,6 +103,9 @@ int ledTime = STATE_1_LED_TIME;                     // LED toggle events TIME
 unsigned long previousMillisLED = 0;                // Record the time of  the last LED toggle
 Event eventArray[EVENT_ARR_SIZE];                   // create event array EventType : default EventType::None
 
+//create soft serial
+// SoftwareSerial swSerial(XIAO_TX, XIAO_RX);//TX RX 
+
 void setup()
 {
     //init usb serial port
@@ -111,9 +114,9 @@ void setup()
     pinMode(LED_PIN, OUTPUT);
     //init button
     initButtons();
-    //init synth
-    synth.begin(&Serial2,MIDI_SERIAL_BAUD_RATE,XIAO_TX,XIAO_RX);
-    // synth.begin();
+    //init synth -- 
+    synth.begin(&Serial2,MIDI_SERIAL_BAUD_RATE,XIAO_TX,XIAO_RX); //use hardware serial
+    // synth.begin(&swSerial,MIDI_SERIAL_BAUD_RATE); // use software serial
     delay(3000);
     //regist three mode state
     manager->registerState(new AuditionMode());

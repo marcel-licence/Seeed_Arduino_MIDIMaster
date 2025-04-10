@@ -7,11 +7,26 @@
 
 SAM2695Synth::SAM2695Synth()
 :_serial(nullptr)
+,_softSerial(nullptr)
 ,_pitch(60)
 ,_velocity(90)
 ,_bpm(BPM_DEFAULT)
 {
 
+}
+
+SAM2695Synth::~SAM2695Synth()
+{
+    if(_serial)
+    {
+        delete _serial;
+        _serial = nullptr;
+    }
+    if(_softSerial)
+    {
+        delete _softSerial;
+        _softSerial = nullptr;
+    }
 }
 
 // Get the singleton, ensuring there is only one object.
@@ -36,6 +51,15 @@ void SAM2695Synth::begin(HardwareSerial* serial, int baud, uint8_t RX, uint8_t T
 {
     _serial = serial;
     _serial->begin(baud, SERIAL_8N1, RX, TX);
+}
+
+void SAM2695Synth::begin(SoftwareSerial *serial , int baud)
+{
+    _softSerial = serial;
+    if(_softSerial != nullptr)
+    {
+        _softSerial->begin(baud);
+    }
 }
 
 // Sets the instrument for a specific MIDI bank and channel by sending appropriate MIDI control and program change messages
@@ -246,5 +270,13 @@ uint8_t SAM2695Synth::getBpm() const
 // - len: The length of the byte array to be sent.
 void SAM2695Synth::sendCMD(byte* cmd, int len)
 {
-    _serial->write(cmd, len);
+    if(_serial != nullptr){
+        _serial->write(cmd, len);
+    }
+    if(_softSerial != nullptr){
+        _softSerial->write(cmd, len);
+    }
+    if(_serial == nullptr && _softSerial == nullptr){
+        Serial.println("hardware serial and software serial error! please check!");
+    }
 }

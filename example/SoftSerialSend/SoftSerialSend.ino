@@ -1,20 +1,30 @@
-#include "SoftwareSerial.h"
-
+#include <Arduino.h>
+#include <SoftwareSerial.h>
+#include "SAM2695Synth.h"
 /*
-Send Mode
-param1 =  RX pin 
-param2 =  TX pin 
-param3 = baudRate
+use software serial , please download EspSoftwareSerial library
 */
-SoftwareSerial mySerial(44, 43, 31250);
-void setup() {
+
+//define serial  -- XIAO to SAM2695
+#define XIAO_TX 44
+#define XIAO_RX 43
+//create software serial
+SoftwareSerial swSerial(XIAO_TX, XIAO_RX);//TX RX 
+//create SAM2695Synth
+SAM2695Synth synth = SAM2695Synth::getInstance();
+
+void setup() 
+{
     Serial.begin(9600);
-    mySerial.begin();
+    //use software serial
+    synth.begin(&swSerial,MIDI_SERIAL_BAUD_RATE);
+    delay(3000);
+    Serial.print("synth and serial ok!");
 }
-void loop() {
-    byte CMD_NOTE_ON[] = {(uint8_t)(0x90 | (0 & 0x0f)),64, 50};
-    for (int i = 0; i < sizeof(CMD_NOTE_ON); i++) {
-        mySerial.sendByte(CMD_NOTE_ON[i]);
-    }
+void loop() 
+{
+    synth.setNoteOn(CHANNEL_0,NOTE_E4,VELOCITY_DEFAULT);
+    delay(1000);
+    synth.setNoteOff(CHANNEL_0,NOTE_E4,VELOCITY_DEFAULT);
     delay(1000);
 }
