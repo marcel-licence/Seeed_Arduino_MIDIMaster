@@ -32,6 +32,12 @@ This project is based on the **xiao_esp32s3** microcontroller and the **SAM2695*
 **LED Indicators**  
    In the example program, three different states correspond to different LED blinking times for easy state differentiation.
 
+**Software Serial**
+   Before using Software Serial, please first install the **EspSoftwareSerial library**. 
+   The installation process is as follows: Open the Arduino IDE, search for "EspSoftwareSerial" in the library manager on the left side, and then install it.
+   This driver library provides methods for initializing software serial and example sketches. Please refer to the relevant examples for using software serial.
+
+
 ## Usage Instructions
 1. Download and import this library into your development environment.
 2. Connect the XIAO ESP32S3 to the SAM2695 driver board.

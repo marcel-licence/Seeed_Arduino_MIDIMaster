@@ -275,13 +275,14 @@ uint8_t SAM2695Synth::getBpm() const
 // - len: The length of the byte array to be sent.
 void SAM2695Synth::sendCMD(byte* cmd, int len)
 {
+    if(_serial == nullptr && _softSerial == nullptr){
+        Serial.println("hardware serial and software serial error! please check!");
+        return ;
+    }
     if(_serial != nullptr){
         _serial->write(cmd, len);
     }
     if(_softSerial != nullptr){
         _softSerial->write(cmd, len);
-    }
-    if(_serial == nullptr && _softSerial == nullptr){
-        Serial.println("hardware serial and software serial error! please check!");
     }
 }

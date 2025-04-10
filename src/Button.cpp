@@ -7,7 +7,7 @@
 // 消抖时间（毫秒）
 const unsigned long debounceDelay = 50;
 // 长按时间（毫秒）
-const unsigned long longPressTime = 1000;
+const unsigned long longPressTime = 600;
 
 // 事件标志位
 bool shortPressFlag_A = false;

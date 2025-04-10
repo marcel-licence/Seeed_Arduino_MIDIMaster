@@ -8,11 +8,6 @@
 #include <Arduino.h>
 #include "Event.h"
 
-#define BUTTON_A_PIN 1
-#define BUTTON_B_PIN 2
-#define BUTTON_C_PIN 3
-#define BUTTON_D_PIN 4
-
 
 extern bool shortPressFlag_A;
 extern bool longPressFlag_A;
