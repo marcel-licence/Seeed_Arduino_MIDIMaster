@@ -17,7 +17,7 @@ public:
     void begin(SoftwareSerial *serial , int baud);
 
     void setInstrument(uint8_t bank, uint8_t channel, uint8_t value);
-    void setNoteOn(uint8_t channel, uint8_t pitch = -1, uint8_t velocity = -1);
+    void setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity);
     void setNoteOff(uint8_t channel, uint8_t pitch, uint8_t velocity);
     void setAllNotesOff(uint8_t channel);
     void playChord(const musicData& chord);

@@ -93,10 +93,6 @@ void SAM2695Synth::setInstrument(uint8_t bank, uint8_t channel, uint8_t value)
 //   velocity - The velocity (0-127) indicating how hard the note is struck (higher values for louder sounds).
 void SAM2695Synth::setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity)
 {
-    if(-1 == pitch)
-        pitch = _pitch;
-    if(-1 == velocity)
-        velocity = _velocity;
     uint8_t CMD_NOTE_ON[] = {(uint8_t)(MIDI_COMMAND_ON | (channel & 0x0f)),
                              pitch, velocity};
     sendCMD(CMD_NOTE_ON, sizeof(CMD_NOTE_ON));

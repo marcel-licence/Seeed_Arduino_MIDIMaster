@@ -2,7 +2,7 @@ musicData track1[] =
 {
 
     {
-        CHANNEL_0,
+        CHANNEL_5,
         {
             {64, true},
             {67, true},
@@ -14,7 +14,7 @@ musicData track1[] =
         1000
     },
     {
-        CHANNEL_0,
+        CHANNEL_5,
         {
             {65, true},
             {69, true},
@@ -26,7 +26,7 @@ musicData track1[] =
         1000
     },
     {
-        CHANNEL_0,
+        CHANNEL_5,
         {
             {62, true},
             {65, true},
@@ -38,7 +38,7 @@ musicData track1[] =
         1000
     },
     {
-        CHANNEL_0,
+        CHANNEL_5,
         {
             {60, true},
             {64, true},
@@ -49,43 +49,6 @@ musicData track1[] =
         3,
         1000
     }
-};
-
-
-//Example of multi-track chord data definition
-const musicData channel_1_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_C2, true},
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    0,
-    BPM_DEFAULT + BPM_STEP,
-};
-
-const musicData channel_2_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    1,
-    BPM_DEFAULT - BPM_STEP,
-};
-
-const musicData channel_3_chord =
-{
-    CHANNEL_9,
-    {
-        {NOTE_D2, true},
-        {NOTE_FS2, true},
-    },
-    VELOCITY_DEFAULT ,
-    2,
-    BPM_DEFAULT - BPM_STEP,
 };
 
 musicData track2[] = 
@@ -138,6 +101,44 @@ musicData track2[] =
         3,
         1000
     }
+};
+
+
+
+//Example of multi-track chord data definition
+const musicData channel_1_chord =
+{
+    CHANNEL_9,
+    {
+        {NOTE_C2, true},
+        {NOTE_FS2, true},
+    },
+    VELOCITY_DEFAULT ,
+    0,
+    BPM_DEFAULT + BPM_STEP,
+};
+
+const musicData channel_2_chord =
+{
+    CHANNEL_9,
+    {
+        {NOTE_FS2, true},
+    },
+    VELOCITY_DEFAULT ,
+    1,
+    BPM_DEFAULT - BPM_STEP,
+};
+
+const musicData channel_3_chord =
+{
+    CHANNEL_9,
+    {
+        {NOTE_D2, true},
+        {NOTE_FS2, true},
+    },
+    VELOCITY_DEFAULT ,
+    2,
+    BPM_DEFAULT - BPM_STEP,
 };
 
 const musicData channel_4_chord =

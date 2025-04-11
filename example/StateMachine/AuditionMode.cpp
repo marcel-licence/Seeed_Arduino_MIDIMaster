@@ -41,12 +41,18 @@ bool AuditionMode::handleEvent(StateMachine* machine, Event* event)
     switch(event->getType()){
     case EventType::APressed:{
         Serial.println("AuditionMode Button A Pressed");
-        static uint8_t instrument = unit_synth_instrument_t::StringEnsemble2;
+        static uint8_t instrument = unit_synth_instrument_t::GrandPiano_1;
         instrument++;
+        if(instrument>Gunshot)
+        {
+            instrument = GrandPiano_1;
+        }
         Serial.println("Instrument: " + String(instrument));
         synth.setInstrument(0,CHANNEL_0,instrument);
         synth.setPitch(instrument);
-        synth.setNoteOn(CHANNEL_0,synth.getPitch(),VELOCITY_MAX);
+        synth.setNoteOn(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
+        delay(50);
+        synth.setNoteOff(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
         return true;
     };
     case EventType::BPressed:{
