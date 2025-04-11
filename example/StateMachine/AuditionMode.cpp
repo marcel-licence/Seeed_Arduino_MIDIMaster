@@ -49,10 +49,9 @@ bool AuditionMode::handleEvent(StateMachine* machine, Event* event)
         }
         Serial.println("Instrument: " + String(instrument));
         synth.setInstrument(0,CHANNEL_0,instrument);
-        synth.setPitch(instrument);
         synth.setNoteOn(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
-        delay(50);
-        synth.setNoteOff(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
+        
+        // synth.setNoteOff(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
         return true;
     };
     case EventType::BPressed:{
@@ -100,10 +99,9 @@ bool AuditionMode::handleEvent(StateMachine* machine, Event* event)
         return true;
     }
     case EventType::BtnReleased:{
-        for(uint8_t i = CHANNEL_0;i<=CHANNEL_15;i++)
-        {
-            synth.setAllNotesOff(i);
-        }
+        delay(50);
+        synth.setAllNotesOff(CHANNEL_0);
+        
         entryFlag = true;
     }
     default:
