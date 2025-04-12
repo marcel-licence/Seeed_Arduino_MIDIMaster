@@ -10,7 +10,6 @@
 
 #define MAX_STATES 10
 
-//状态管理器
 class StateManager {
 public:
     ~StateManager();
