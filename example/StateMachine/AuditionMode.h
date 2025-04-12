@@ -11,7 +11,8 @@
 #include "StateMachine.h"
 #include "SAM2695Synth.h"
 
-#define MaxTimeLimit 2000 //录制最大间隔，设置为2s
+// The maximum recording interval is set to 2s
+#define MaxTimeLimit 2000 
 
 extern SAM2695Synth synth;
 
@@ -25,21 +26,35 @@ extern bool drum_on_off_flag;
 extern unsigned long btnPressStartTime;
 extern uint8_t buttonPressCount;
 extern bool isRecording;
-extern uint8_t randomNote;
 
-
-//AuditionMode
-class AuditionMode :public State{
-public:
-	enum {ID = 1};
-    AuditionMode();
-	virtual void onEnter();
-	virtual void onExit();
-	//handle event
-    virtual bool handleEvent(StateMachine* machine,Event* event);
-	virtual int getID() const;
-	virtual const char* getName() const;
-};
+// AuditionMode Mode 1 (default)
+// AuditionMode is a derived class from State that represents a specific state in the state machine.
+// It defines unique behavior for this state by overriding the virtual methods of the base class State.
+//
+// Enum `ID` defines a unique identifier for this state (ID = 1). This allows the state to be easily referenced by its ID.
+// 
+// Methods:
+// - `onEnter()`: This method is called when the state is entered, to initialize or reset any necessary conditions for the state.
+// - `onExit()`: This method is called when the state is exited, allowing for any cleanup or finalization when leaving the state.
+// - `handleEvent()`: This method handles events while the state is active. It receives a `StateMachine*` and an `Event*`, allowing it to interact with other components and decide what actions to take based on the event.
+// - `getID()`: Returns the unique ID of this state, defined as `1`. This is used by the state manager to identify the state.
+// - `getName()`: Returns the name of the state as a string. This provides an easily readable identifier for logging or debugging purposes.
+class AuditionMode : public State {
+	public:
+		enum {ID = 1};  // Unique ID for this state.
+	
+		AuditionMode();  // Constructor that initializes the state.
+		
+		virtual void onEnter();  // Called when entering this state. Override for custom entry logic.
+		virtual void onExit();   // Called when exiting this state. Override for custom exit logic.
+	
+		// Handles events while in this state. Override to process specific events.
+		virtual bool handleEvent(StateMachine* machine, Event* event);
+	
+		virtual int getID() const;  // Returns the ID for this state (1 in this case).
+		virtual const char* getName() const;  // Returns the name of the state as a string.
+	};
+	
 
 
 #endif //BUTTONSTATE_H

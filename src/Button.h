@@ -22,7 +22,7 @@ extern bool shortPressFlag_D;
 extern bool longPressFlag_D;
 extern bool releaseFlag_D;
 
-//
+
 struct BtnState 
 {
     int buttonState;

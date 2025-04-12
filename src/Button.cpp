@@ -4,12 +4,11 @@
 
 #include "Button.h"
 
-// 消抖时间（毫秒）
+// Debounce time (milliseconds)
 const unsigned long debounceDelay = 50;
-// 长按时间（毫秒）
-const unsigned long longPressTime = 600;
+// Long press duration (milliseconds)
+const unsigned long longPressTime = 1000;
 
-// 事件标志位
 bool shortPressFlag_A = false;
 bool longPressFlag_A = false;
 bool releaseFlag_A = false;
@@ -23,35 +22,55 @@ bool shortPressFlag_D = false;
 bool longPressFlag_D = false;
 bool releaseFlag_D = false;
 
+// Initializes the button pin with an internal pull-up resistor enabled.
+// This ensures that the button pin will read HIGH when not pressed, and LOW when pressed.
+// Parameters:
+//   - pin: The pin number where the button is connected.
+// For other platforms, you need to refer to the corresponding documentation.
+//e.g
+//  #define BUTTON_A_PIN 1  // Button 1 on XIAO_ESP32S3
+//  #define BUTTON_B_PIN 2  // Button 2 on XIAO_ESP32S3
+//  #define BUTTON_C_PIN 3  // Button 3 on XIAO_ESP32S3
+//  #define BUTTON_D_PIN 4  // Button 4 on XIAO_ESP32S3
 void initButtons(uint8_t pin)
 {
     pinMode(pin,INPUT_PULLUP);
 }
 
-// 封装按键检测函数
+// Detects button events (short press, long press, and release) for a given button pin.
+// This function reads the current button state, processes debounce logic, and updates flags 
+// for short press, long press, and button release events based on the button's state and duration.
+// It uses a debounce mechanism to avoid multiple readings for a single button press.
+// Parameters:
+//   - buttonPin: The pin number where the button is connected.
+//   - button: A reference to the BtnState struct which holds the state of the button and timing information.
+//   - shortPressFlag: A reference to a boolean flag indicating if a short press event has occurred.
+//   - longPressFlag: A reference to a boolean flag indicating if a long press event has occurred.
+//   - releaseFlag: A reference to a boolean flag indicating if the button has been released.
+// The function does not return any values.
 void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFlag, bool& longPressFlag, bool& releaseFlag) {
-    // 读取按键状态
+    // Read button status
     int reading = digitalRead(buttonPin);
 
-    // 检测按键状态是否改变
+    // Detect if the button status has changed
     if (reading != button.lastButtonState) {
         button.lastDebounceTime = millis();
     }
 
-    // 消抖处理
+    // Debounce processing
     if ((millis() - button.lastDebounceTime) > debounceDelay) {
         if (reading != button.buttonState) {
             button.buttonState = reading;
 
             if (button.buttonState == LOW) {
-                // 按键按下
+                // Button press
                 button.pressStartTime = millis();
                 button.longPressTriggered = false;
             } else {
-                // 按键释放
+                // Button release
                 unsigned long pressDuration = millis() - button.pressStartTime;
                 if (!button.longPressTriggered && pressDuration < longPressTime) {
-                    // 短按事件
+                    // Short press event
                     shortPressFlag = true;
                 }
                 releaseFlag = true;
@@ -59,7 +78,7 @@ void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFla
         }
     }
 
-    // 检测长按事件
+    // Detect long press event
     if (button.buttonState == LOW && (millis() - button.pressStartTime) >= longPressTime) {
         if (!button.longPressTriggered) {
             longPressFlag = true;
@@ -67,6 +86,6 @@ void detectButtonEvents(uint8_t buttonPin, BtnState& button, bool& shortPressFla
         }
     }
 
-    // 更新上一次的按键状态
+    // Update the previous button status
     button.lastButtonState = reading;
 }

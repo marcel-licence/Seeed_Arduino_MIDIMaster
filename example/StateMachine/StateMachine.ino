@@ -141,9 +141,7 @@ uint8_t countBytrack2 = 0;                          // music 2 count
 //LED data
 uint8_t  modeID = AuditionMode::ID;                 // state mode id 
 int ledTime = STATE_1_LED_TIME;                     // LED toggle events TIME
-unsigned long previousMillisLED = 0;                // Record the time of  the last LED toggle
-// create event array EventType : default EventType::None
-Event eventArray[EVENT_ARR_SIZE];                   
+unsigned long previousMillisLED = 0;                // Record the time of  the last LED toggle               
 
 void setup()
 {
@@ -184,9 +182,7 @@ void loop()
     {
         stateMachine.handleEvent(event);
         // set the event type is None
-        event->setType(EventType::None);
-        // Release the event's occupied status
-        event->setInUse(false);
+        stateMachine.recycleEvent(event);
     }
     multiTrackPlay();
     ledShow();
@@ -203,29 +199,11 @@ Event* getNextEvent()
     for (const auto& flags : buttonFlags) {
         if (flags.shortPress) {
             flags.shortPress = false;
-            // "Find the first unused event in the array
-            for (int i = 0; i < EVENT_ARR_SIZE; i++) {
-                if (!eventArray[i].isInUse()) {
-                    // set the event type is shortPressType by button
-                    eventArray[i].setType(flags.shortPressType);
-                    // Mark as in use to prevent reuse
-                    eventArray[i].setInUse(true);
-                    return &eventArray[i];
-                }
-            }
+            return stateMachine.getEvent(flags.shortPressType);
         }
         if (flags.longPress) {
             flags.longPress = false;
-            // "Find the first unused event in the array
-            for (int i = 0; i < EVENT_ARR_SIZE; i++) {
-                if (!eventArray[i].isInUse()) {
-                    // set the event type is longPressType by button
-                    eventArray[i].setType(flags.longPressType);
-                    // Mark as in use to prevent reuse
-                    eventArray[i].setInUse(true);
-                    return &eventArray[i];
-                }
-            }
+            return stateMachine.getEvent(flags.longPressType);
         }
     }
 
@@ -238,16 +216,7 @@ Event* getNextEvent()
     }
 
     if (anyReleased) {
-        // "Find the first unused event in the array
-        for (int i = 0; i < EVENT_ARR_SIZE; i++) {
-            if (!eventArray[i].isInUse()) {
-                // set the event type is BtnReleased
-                eventArray[i].setType(EventType::BtnReleased);
-                // Mark as in use to prevent reuse
-                eventArray[i].setInUse(true);
-                return &eventArray[i];
-            }
-        }
+        return stateMachine.getEvent(EventType::BtnReleased);
     }
 
     return nullptr;
