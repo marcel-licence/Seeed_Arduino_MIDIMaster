@@ -18,7 +18,7 @@ public:
 
     void setInstrument(uint8_t bank, uint8_t channel, uint8_t value);
     void setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity);
-    void setNoteOff(uint8_t channel, uint8_t pitch, uint8_t velocity);
+    void setNoteOff(uint8_t channel, uint8_t pitch);
     void setAllNotesOff(uint8_t channel);
     void playChord(const musicData& chord);
     void setPitch(uint8_t pitch);

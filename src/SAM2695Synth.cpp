@@ -106,7 +106,7 @@ void SAM2695Synth::setNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity)
 //   channel - The MIDI channel (0-15) on which to send the "Note Off" message.
 //   pitch - The MIDI pitch value (0-127) representing the note to be stopped (e.g., 60 for Middle C).
 //   velocity - The velocity (0-127) which is usually ignored for "Note Off" messages but can be set to any value. In this case, it's always set to 0.
-void SAM2695Synth::setNoteOff(uint8_t channel, uint8_t pitch, uint8_t velocity)
+void SAM2695Synth::setNoteOff(uint8_t channel, uint8_t pitch)
 {
     uint8_t CMD_NOTE_OFF[] = {(uint8_t)(MIDI_COMMAND_OFF | (channel & 0x0f)),
                               pitch, 0x00};

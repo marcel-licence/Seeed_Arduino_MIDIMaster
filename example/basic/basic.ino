@@ -58,6 +58,6 @@ void loop()
 {
   synth.setNoteOn(CHANNEL_0,NOTE_E4,VELOCITY_DEFAULT);
   delay(1000);
-  synth.setNoteOff(CHANNEL_0,NOTE_E4,VELOCITY_DEFAULT);
+  synth.setNoteOff(CHANNEL_0,NOTE_E4);
   delay(1000);
 }

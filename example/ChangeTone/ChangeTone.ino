@@ -76,21 +76,18 @@ void loop()
     if(shortPressFlag_A)
     {
         shortPressFlag_A = false;
-        static uint8_t instrument = unit_synth_instrument_t::StringEnsemble2;
+        static uint8_t instrument = unit_synth_instrument_t::GrandPiano_1;
         instrument++;
         Serial.println("Instrument: " + String(instrument));
-        for(int i = CHANNEL_0;i<=CHANNEL_15;i++)
-        {
-            synth.setInstrument(0,i,instrument);
-        }
-        synth.setPitch(instrument);	
-        synth.setNoteOn(CHANNEL_0,synth.getPitch(),VELOCITY_MAX);
+        synth.setInstrument(0,CHANNEL_0,instrument);
+        synth.setNoteOn(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
     }
 
     if(releaseFlag_A)
     {
         releaseFlag_A = false;
-        synth.setNoteOff(CHANNEL_0,synth.getPitch(),VELOCITY_MAX);	
+        delay(50);
+        synth.setNoteOff(CHANNEL_0,synth.getPitch());	
     }
 
 }

@@ -70,8 +70,8 @@ bool track_1_flag = false;                          // on or off track 1 music
 bool track_2_flag = false;                          // on or off track 2 music
 unsigned long preMillisCh_1 = 0;                    // Record the time of the last MIDI signal sent on track 1
 unsigned long preMillisCh_2 = 0;                    // Record the time of the last MIDI signal sent on track 2
-uint8_t countBytrack1 = 0;
-uint8_t countBytrack2 = 0;
+uint8_t countBytrack1 = 0;                          // Index count of Music 1
+uint8_t countBytrack2 = 0;                          // Index count of Music 2                        
 
 
 void setup()
