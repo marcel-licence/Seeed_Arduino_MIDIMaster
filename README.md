@@ -64,11 +64,14 @@ lib_deps =
 ```cpp
 #include <SAM2695Synth.h>
 
-SAM2695Synth synth;
+#define XIAO_TX 43
+#define XIAO_RX 44
+#define SERIAL Serial2
+
+SAM2695Synth synth = SAM2695Synth::getInstance();
 
 void setup() {
-  synth.begin();
-  synth.setInstrument(0, 0);  // Set channel 0 to piano sound
+  synth.begin(&SERIAL, 31250, XIAO_RX, XIAO_TX);
 }
 
 void loop() {
