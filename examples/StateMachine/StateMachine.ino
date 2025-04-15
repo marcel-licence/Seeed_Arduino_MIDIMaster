@@ -4,21 +4,6 @@
  * You will need to define the serial port and its pins. This example uses the XIAO_ESP32S3.
  * For pin definitions, please refer to https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/
  * 
- * Note: If you are using a different development board 
- * (e.g., XIAO_ESP32C3, documentation link https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/):
- *     1. Ensure the pin definitions are correct.
- *     2. Make sure the hardware serial port is defined correctly if you are using a hardware serial port.
- *     3. Check if the chip has relevant indicator lights; if not, external indicators may be needed unless you don't require indicator functionality.
- *     If using XIAO_ESP32S3, the following definitions should be used:
- * 
- *     #define SERIAL Serial1  // Hardware serial port for XIAO_ESP32C3
- *     #define BUTTON_A_PIN 2  // Button 1 on XIAO_ESP32C3
- *     #define BUTTON_B_PIN 3  // Button 2 on XIAO_ESP32C3
- *     #define BUTTON_C_PIN 4  // Button 3 on XIAO_ESP32C3
- *     #define BUTTON_D_PIN 5  // Button 4 on XIAO_ESP32C3
- *     For other models, refer to the corresponding documentation.
- * 
- *
  * This example has the following features:
  * Mode 1:(Audition Mode)
  *      The indicator blinks every 2 seconds, ON for 2s, OFF for 2s
@@ -78,31 +63,76 @@
 #define STATE_1_LED_TIME 2000
 #define STATE_2_LED_TIME 500
 #define STATE_3_LED_TIME 100
-//define LED Pins 
-#define LED_PIN LED_BUILTIN
-/*
- Define the hardware serial port and its pins. If you need to use a hardware serial port
- please refer to the documentation of the corresponding development board for specific hardware pin definitions.
- */ 
-#define XIAO_TX 43
-#define XIAO_RX 44
-#define SERIAL Serial2
-/*
-Define the software serial port and its pins. If you need to use a software serial port
-this example uses a hardware serial port, so the software serial port is commented out.
-To use a software serial port, you should first install the EspSoftwareSerial library.
-*/ 
-// #include <SoftwareSerial.h>
-// #define XIAO_TX_SW 7
-// #define XIAO_RX_SW 8
-// SoftwareSerial swSerial(XIAO_RX, XIAO_TX);//RX TX 
 
-// Define the buttons. The pins here correspond to the XIAO_ESP32S3. 
-// For other platforms, you need to refer to the corresponding documentation.
-#define BUTTON_A_PIN 1  // Button 1 on XIAO_ESP32S3
-#define BUTTON_B_PIN 2  // Button 2 on XIAO_ESP32S3
-#define BUTTON_C_PIN 3  // Button 3 on XIAO_ESP32S3
-#define BUTTON_D_PIN 4  // Button 4 on XIAO_ESP32S3
+#ifdef __AVR__
+    #include <SoftwareSerial.h>
+    SoftwareSerial SSerial(2, 3); // RX, TX
+    #define COM_SERIAL SSerial
+    #define SHOW_SERIAL Serial
+    SAM2695Synth<SoftwareSerial> synth = SAM2695Synth<SoftwareSerial>::getInstance();
+#endif
+
+#if defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_RP2350) ||  defined(ARDUINO_XIAO_RA4M1) 
+    #include <SoftwareSerial.h>
+    SoftwareSerial SSerial(D7, D6); // RX, TX
+    #define COM_SERIAL SSerial
+    #define SHOW_SERIAL Serial
+    SAM2695Synth<SoftwareSerial> synth = SAM2695Synth<SoftwareSerial>::getInstance();
+#endif
+
+#if  defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32S3)
+    #define COM_SERIAL Serial0
+    #define SHOW_SERIAL Serial
+    SAM2695Synth<HardwareSerial> synth = SAM2695Synth<HardwareSerial>::getInstance();
+#endif
+
+#if defined(NRF52840_XXAA)
+    #ifdef USE_TINYUSB
+    #include <Adafruit_TinyUSB.h>
+    #endif
+    #define COM_SERIAL Serial1
+    #define SHOW_SERIAL Serial
+
+    SAM2695Synth<Uart> synth = SAM2695Synth<Uart>::getInstance();
+#endif
+
+#ifdef SEEED_XIAO_M0
+    #define COM_SERIAL Serial1
+    #define SHOW_SERIAL Serial
+    SAM2695Synth<Uart> synth = SAM2695Synth<Uart>::getInstance();
+#elif defined(ARDUINO_SAMD_VARIANT_COMPLIANCE)
+    #define COM_SERIAL Serial1
+    #define SHOW_SERIAL SerialUSB
+    SAM2695Synth<Uart> synth = SAM2695Synth<Uart>::getInstance();
+#endif
+
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+    #define BUTTON_A_PIN 1
+    #define BUTTON_B_PIN 2
+    #define BUTTON_C_PIN 3 
+    #define BUTTON_D_PIN 4 
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
+    #define BUTTON_A_PIN 2
+    #define BUTTON_B_PIN 3
+    #define BUTTON_C_PIN 4 
+    #define BUTTON_D_PIN 5 
+#elif defined(CONFIG_IDF_TARGET_ESP32C6)
+    #define BUTTON_A_PIN 0
+    #define BUTTON_B_PIN 1
+    #define BUTTON_C_PIN 2 
+    #define BUTTON_D_PIN 21
+#else //You need to refer to the corresponding manual...
+    #define BUTTON_A_PIN 0 //You need to refer to the corresponding manual...
+    #define BUTTON_B_PIN 1 //You need to refer to the corresponding manual...
+    #define BUTTON_C_PIN 2 //You need to refer to the corresponding manual...
+    #define BUTTON_D_PIN 3 //You need to refer to the corresponding manual...
+#endif
+
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+    #define LED_PIN 10              //You need to connect a light yourself
+#else
+    #define LED_PIN LED_BUILTIN
+#endif
 
 
 //Define the structure needed for the button
@@ -119,8 +149,6 @@ ButtonFlags buttonFlags[] = {
     {shortPressFlag_D, longPressFlag_D, releaseFlag_D, EventType::DPressed, EventType::DLongPressed}
 };
 
-//create SAM2695Synth
-SAM2695Synth synth = SAM2695Synth::getInstance();
 //create state machine
 StateMachine stateMachine;
 StateManager* manager = StateManager::getInstance();
@@ -145,14 +173,13 @@ unsigned long previousMillisLED = 0;                // Record the time of  the l
 
 void setup()
 {
-    //init usb serial port
-    Serial.begin(USB_SERIAL_BAUD_RATE);
-    //init LED
-    pinMode(LED_PIN, OUTPUT);
-    //synth init
+    //  serial init to usb
+    SHOW_SERIAL.begin(USB_SERIAL_BAUD_RATE);
     // Synth initialization. Since a hardware serial port is used here, the software serial port is commented out.
-    synth.begin(&SERIAL, MIDI_SERIAL_BAUD_RATE, XIAO_RX, XIAO_TX);
-    // synth.begin(&swSerial,MIDI_SERIAL_BAUD_RATE);
+    synth.begin(COM_SERIAL, MIDI_SERIAL_BAUD_RATE);
+    synth.setInstrument(0,CHANNEL_0,unit_synth_instrument_t::GrandPiano_1);
+    // initialize the led
+    pinMode(LED_PIN, OUTPUT);
     // Initialize the buttons you are using.
     initButtons(BUTTON_A_PIN);
     initButtons(BUTTON_B_PIN);

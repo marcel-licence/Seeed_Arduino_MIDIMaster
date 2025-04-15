@@ -12,8 +12,11 @@
 #define BPM_MIN                         40      //min bpm
 #define BPM_MAX                         240     //max bpm
 #define BPM_STEP                        10      //step of bpm
-#define MIDI_CMD_CONTROL_CHANGE         0xB0    //control change
-#define MIDI_CMD_PROGRAM_CHANGE         0xC0    //program change
+#define MIDI_CMD_CONTROL_CHANGE \
+0xB0                              // Control Change (or Channel Mode
+                                      // Message)
+#define MIDI_CMD_PROGRAM_CHANGE 0xC0  // Program Change
+
 #define VELOCITY_MIN                    0       //min velocity(0~127) 0
 #define VELOCITY_MAX                    127     //max velocity(0~127) 127
 #define VELOCITY_STEP                   10      //step velocity

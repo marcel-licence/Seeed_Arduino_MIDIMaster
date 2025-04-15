@@ -14,8 +14,30 @@
 // The maximum recording interval is set to 2s
 #define MaxTimeLimit 2000 
 
-extern SAM2695Synth synth;
 
+#ifdef __AVR__
+	#include <SoftwareSerial.h>
+	extern SAM2695Synth<SoftwareSerial> synth;
+#endif
+
+#if defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_RP2350) ||  defined(ARDUINO_XIAO_RA4M1) 
+	#include <SoftwareSerial.h>
+	extern SAM2695Synth<SoftwareSerial> synth;
+#endif
+
+#if  defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32S3)
+	extern SAM2695Synth<HardwareSerial> synth;
+#endif
+
+#ifdef SEEED_XIAO_M0
+	extern SAM2695Synth<Uart> synth;
+#elif defined(ARDUINO_SAMD_VARIANT_COMPLIANCE)
+	extern SAM2695Synth<Uart> synth;
+#endif
+
+#if defined(NRF52840_XXAA)
+	extern SAM2695Synth<Uart> synth;
+#endif
 extern bool entryFlag;
 extern bool channel_1_on_off_flag;
 extern bool channel_2_on_off_flag;

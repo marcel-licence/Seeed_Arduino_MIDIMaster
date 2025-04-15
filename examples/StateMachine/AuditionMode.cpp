@@ -47,7 +47,6 @@ bool AuditionMode::handleEvent(StateMachine* machine, Event* event)
         {
             instrument = GrandPiano_1;
         }
-        Serial.println("Instrument: " + String(instrument));
         synth.setInstrument(0,CHANNEL_0,instrument);
         synth.setNoteOn(CHANNEL_0,NOTE_C4,VELOCITY_MAX);
         
