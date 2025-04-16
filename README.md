@@ -23,10 +23,20 @@ Seeed Arduino MIDIMaster is a professional-grade MIDI synthesizer development li
 - **Professional Drum Kit** - Channel 9 dedicated drum machine functionality with various percussion sounds
 
 ### System Architecture
-- **State Machine Management** - Efficient state machine design for clear, logical button operation
 - **LED Status Indication** - Intuitive LED feedback system with different blinking patterns for different modes
 - **Event Handling System** - Robust event processing with support for short press, long press and complex interactions
 - **Reliable Serial Communication** - Support for both hardware and software serial interfaces, offering multiple connection options
+- **State Machine Management** - Efficient state machine design for clear, logical button operation
+  - This example implements a complete state machine architecture, which includes the following core components:
+  - 1:State Interface and Concrete State Classes 
+  - 2:Event System 
+  - 3:State Machine Core 
+  - 4:Function Registration and Management System 
+  - In this example, buttons are used as event triggers for the state machine, supporting button actions such as short press, long press, and release. 
+  - This architecture ensures flexibility and scalability:
+  - states and events are easy to extend, and new features can be added simply by creating new state classes and registering them. 
+  - Event handling and state transitions are separated. 
+  - You can design and extend the functionality of the state machine for secondary development based on this architecture.
 
 ## 🔧 Hardware Requirements
 
@@ -48,15 +58,14 @@ Seeed Arduino MIDIMaster is a professional-grade MIDI synthesizer development li
 
 ### PlatformIO Installation
 ```ini
+# e.g. XIAO ESP32S3
 # platformio.ini
 [env:seeed_xiao_esp32s3]
 platform = espressif32
 board = seeed_xiao_esp32s3
 framework = arduino
-lib_deps = 
-    seeed/Seeed_Arduino_MIDIMaster
-    plerup/EspSoftwareSerial
 ```
+
 
 ## 📝 Usage Examples
 
@@ -64,32 +73,96 @@ lib_deps =
 ```cpp
 #include <SAM2695Synth.h>
 
-#define XIAO_TX 43
-#define XIAO_RX 44
-#define SERIAL Serial2
+#define COM_SERIAL Serial0
+#define SHOW_SERIAL Serial
+SAM2695Synth<HardwareSerial> synth = SAM2695Synth<HardwareSerial>::getInstance();
 
-SAM2695Synth synth = SAM2695Synth::getInstance();
-
-void setup() {
-  synth.begin(&SERIAL, 31250, XIAO_RX, XIAO_TX);
+void setup()
+{
+  //serial init to usb
+  SHOW_SERIAL.begin(USB_SERIAL_BAUD_RATE);
+  // Synth initialization. Since a hardware serial port is used here, the software serial port is commented out.
+  synth.begin(COM_SERIAL, MIDI_SERIAL_BAUD_RATE);
+  synth.setInstrument(0,CHANNEL_0,unit_synth_instrument_t::GrandPiano_1);
+  delay(1000);
 }
 
-void loop() {
-  // Play middle C (note 60)
-  synth.noteOn(0, 60, 100);
-  delay(500);
-  synth.noteOff(0, 60);
-  delay(500);
+void loop()
+{
+  synth.setNoteOn(CHANNEL_0,NOTE_E4,VELOCITY_DEFAULT);
+  delay(1000);
+  synth.setNoteOff(CHANNEL_0,NOTE_E4);
+  delay(1000);
 }
 ```
+### Basic State Machine Example
+```cpp
+#include <Event.h>
+#include <State.h>
+#include <StateMachine.h>
+#include <StateManager.h>
+
+Event* event getNextEvent();
+void errorHandler(int errorCode, const char* errorMsg);
+
+//create state machine
+StateMachine stateMachine;
+StateManager* manager = StateManager::getInstance();
+
+class newState : public State{// Concrete Implementation Class Methods};
+class ErrorState : public State{// Concrete Implementation Class Methods};
+
+void setup()
+{
+    //regist three mode state
+    manager->registerState(new newState());
+    //regist error state
+    ErrorState* errorState = new ErrorState();
+    manager->registerState(errorState);
+    //set error handler
+    stateMachine.setErrorHandler(errorHandler);
+    //init state machine
+    if(!(stateMachine.init(manager->getState(newState::ID), errorState)))
+    {
+        StateManager::releaseInstance();
+        return ;
+    }
+}
+
+void loop()
+{
+    Event* event = getNextEvent();
+    if(event != nullptr)
+    {
+        stateMachine.handleEvent(event);
+        // set the event type is None
+        stateMachine.recycleEvent(event);
+    }
+}
+
+Event* event getNextEvent()
+{
+    // Concrete Implementation Methods
+    return nullptr;
+}
+
+void errorHandler(int errorCode, const char* errorMsg) 
+{
+    printf("error: [%d] %s\n", errorCode, errorMsg);
+}
+
+```
+
+
 
 ## 📚 API Documentation Summary
 
-- `begin()` - This method supports both software serial and hardware serial initialization. The parameters for the two methods are different. For detailed parameter information, please refer to the SAM2695Synth.h file or the full documentation.
+- `begin(T& serial , int baud);` - function is used to initialize the communication with a specified serial port. The template parameter `T` can be a software serial port or a hardware serial port. This flexibility allows users to select either a software-based or hardware-based serial interface depending on their system setup.
 - `setInstrument(bank, channel,value);` - Set the instrument sound for specified channel
 - `noteOn(channel, note, velocity)` - Trigger specified note
-- `noteOff(channel, note, velocity)` - Stop specified note,
-- `increaseBpm()/decreaseBpm()` - Adjust music speed
+- `noteOff(channel, note)` - Stop specified note
+- `playChord(chord)` - Play specified chord, with support for arbitrary note combinations and chord complexity control
+- `increaseBpm()/decreaseBpm()` - Adjust music Tempo
 - `increasePitch()/decreasePitch()` - Adjust pitch
 - `increaseVelocity()/decreaseVelocity()` - Adjust volume
 - See full documentation for more advanced features

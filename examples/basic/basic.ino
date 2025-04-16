@@ -60,7 +60,6 @@ void setup()
   // Synth initialization. Since a hardware serial port is used here, the software serial port is commented out.
   synth.begin(COM_SERIAL, MIDI_SERIAL_BAUD_RATE);
   synth.setInstrument(0,CHANNEL_0,unit_synth_instrument_t::GrandPiano_1);
-  // synth.begin(&swSerial,MIDI_SERIAL_BAUD_RATE);
   delay(1000);
 }
 
