@@ -49,20 +49,20 @@ Seeed Arduino MIDIMaster is a professional-grade MIDI synthesizer development li
 
 ### Arduino IDE Installation
 ```
-1. Open Arduino IDE，eg: XIAO ESP32S3
-2. Select Tools > Board Manager, install "Seeed XIAO ESP32S3"
-3. Select Sketch > Include Library > Manage Libraries
-4. Search for and install the "Seeed_Arduino_MIDIMaster" library
-5. For software serial functionality, also install "EspSoftwareSerial" library
+1. Open the Arduino IDE, e.g., XIAO ESP32C3
+2. Go to Tools > Board Manager, and install "Seeed XIAO ESP32C3"
+3. Navigate to the Seeed_Arduino_MIDIMaster folder
+4. Compress the 'Seeed_Arduino_MIDIMaster' folder into a zip file
+5. Select Sketch > Include Library > Add .ZIP Library > install the Seeed_Arduino_MIDIMaster.zip file
 ```
 
 ### PlatformIO Installation
 ```ini
-# e.g. XIAO ESP32S3
+# e.g. XIAO ESP32C3
 # platformio.ini
-[env:seeed_xiao_esp32s3]
+[env:seeed_xiao_esp32c3]
 platform = espressif32
-board = seeed_xiao_esp32s3
+board = seeed_xiao_esp32c3
 framework = arduino
 ```
 
