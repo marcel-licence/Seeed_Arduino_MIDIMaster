@@ -76,12 +76,12 @@ bool AuditionMode::handleEvent(StateMachine* machine, Event* event)
         };
         case EventType::BLongPressed:{
             Serial.println("AuditionMode Button B Long Pressed");
-            synth.decreaseVelocity();
+            synth.increaseVelocity();
             return true;
         };
         case EventType::CLongPressed:{
             Serial.println("AuditionMode Button C Long Pressed");
-            synth.increaseVelocity();
+            synth.decreaseVelocity();
             return true;
         };
         case EventType::DLongPressed:{

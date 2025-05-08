@@ -75,12 +75,12 @@ bool BpmMode::handleEvent(StateMachine* machine, Event* event)
         };
         case EventType::BLongPressed:{
             Serial.println("BpmMode Button B Long Pressed");
-            synth.decreaseVelocity();
+            synth.increaseVelocity();
             return true;
         };
         case EventType::CLongPressed:{
             Serial.println("BpmMode Button C Long Pressed");
-            synth.increaseVelocity();
+            synth.decreaseVelocity();
             return true;
         };
         case EventType::DLongPressed:{

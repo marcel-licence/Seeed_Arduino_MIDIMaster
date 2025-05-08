@@ -107,20 +107,20 @@
 #endif
 
 #if defined(CONFIG_IDF_TARGET_ESP32S3)
-    #define BUTTON_A_PIN 1
-    #define BUTTON_B_PIN 2
-    #define BUTTON_C_PIN 3 
-    #define BUTTON_D_PIN 4 
-#elif defined(CONFIG_IDF_TARGET_ESP32C3)
-    #define BUTTON_A_PIN 2
+    #define BUTTON_A_PIN 4
     #define BUTTON_B_PIN 3
-    #define BUTTON_C_PIN 4 
-    #define BUTTON_D_PIN 5 
-#elif defined(CONFIG_IDF_TARGET_ESP32C6)
-    #define BUTTON_A_PIN 0
-    #define BUTTON_B_PIN 1
     #define BUTTON_C_PIN 2 
-    #define BUTTON_D_PIN 21
+    #define BUTTON_D_PIN 1 
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
+    #define BUTTON_A_PIN 5
+    #define BUTTON_B_PIN 4
+    #define BUTTON_C_PIN 3 
+    #define BUTTON_D_PIN 2 
+#elif defined(CONFIG_IDF_TARGET_ESP32C6)
+    #define BUTTON_A_PIN 21
+    #define BUTTON_B_PIN 2
+    #define BUTTON_C_PIN 1 
+    #define BUTTON_D_PIN 0
 #else //You need to refer to the corresponding manual...
     #define BUTTON_A_PIN 0 //You need to refer to the corresponding manual...
     #define BUTTON_B_PIN 1 //You need to refer to the corresponding manual...
