@@ -5,12 +5,12 @@
 #include "StateMachine.h"
 
 StateMachine::StateMachine()
-: _currentState(nullptr)
-, _errorHandler(nullptr)
-, _previousState(nullptr)
-, _errorState(nullptr)
-, _transitioningInProgress(false)
-, _currentEventIndex(0)
+    : _currentState(nullptr)
+    , _previousState(nullptr)
+    , _errorState(nullptr)
+    , _currentEventIndex(0)
+    , _errorHandler(nullptr)
+    , _transitioningInProgress(false)
 {
     reset();
 }
