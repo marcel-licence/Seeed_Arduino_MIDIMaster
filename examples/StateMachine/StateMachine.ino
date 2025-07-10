@@ -199,7 +199,7 @@ void setup()
         StateManager::releaseInstance();
         return ;
     }
-    Serial.println("synth and state machine ready!");
+    SHOW_SERIAL.println("synth and state machine ready!");
 }
 
 void loop()
